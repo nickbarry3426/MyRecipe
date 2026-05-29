@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MyRecipe — Your Custom Cooking Notebook</title>
+  <meta name="description" content="A premium, clean recipe tracker and notebook with smart ingredients integration, timers, and cloud sync. Optimized for iPad and cooking environments.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-logo" id="header-logo-btn">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589v-.01a4.015 4.015 0 0 0-3.327-1.996h-.532a4.015 4.015 0 0 0-3.327 1.996v.01A4 4 0 0 0 7.273 14.61c.411.197.727.584.727 1.041V20a1 1 0 0 0 1 1Z"/>
+        <path d="M6 17h12"/>
+      </svg>
+      <h1>MyRecipe</h1>
+    </div>
+    
+    <div class="header-actions">
+      <!-- Sync Status Indicator -->
+      <div class="sync-indicator offline" id="sync-status" title="Sync Status">
+        <span class="sync-dot"></span>
+        <span class="sync-text">Offline Mode</span>
+      </div>
+      
+      <!-- Timers Toggle Button -->
+      <button class="icon-button" id="toggle-timers-btn" aria-label="Toggle Timers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span class="timer-badge" id="active-timers-badge">0</span>
+      </button>
+
+      <!-- Settings Toggle Button -->
+      <button class="icon-button" id="toggle-settings-btn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container (Holds Content Area + Timers Sidebar) -->
+  <div class="main-container">
+    
+    <!-- Left/Center content area -->
+    <main class="content-area">
+      
+      <!-- ================= LIST SCREEN ================= -->
+      <section id="list-screen" class="app-screen active">
+        <div class="hero-section">
+          <h2>Find your recipe</h2>
+          <button class="btn btn-primary" id="new-recipe-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Recipe
+          </button>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="controls-bar">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search title, ingredients, labels...">
+          </div>
+          
+          <div class="filters-container">
+            <div class="labels-scroll" id="labels-filter-container">
+              <!-- Default and custom labels will be generated here -->
+            </div>
+            <button class="btn btn-secondary-icon" id="add-label-btn" title="Create Custom Label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recipe Cards Grid -->
+        <div class="recipe-grid" id="recipe-cards-grid">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div id="empty-state" class="empty-state hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+          </svg>
+          <h3>No Recipes Found</h3>
+          <p>Create your first custom recipe card to fill your notebook.</p>
+          <button class="btn btn-primary" id="empty-add-btn">Add Recipe</button>
+        </div>
+      </section>
+
+      <!-- ================= VIEW RECIPE SCREEN ================= -->
+      <section id="view-screen" class="app-screen">
+        <div class="view-header">
+          <button class="btn btn-secondary" id="view-back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-icon">
+              <line x1="19" y1="12" x2="5" y2="12"/>
+              <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back
+          </button>
+          
+          <div class="view-header-actions">
+            <button class="btn btn-secondary" id="view-edit-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/>
+              </svg>
+              Edit
+            </button>
+            <button class="btn btn-danger-icon" id="view-delete-btn" title="Delete Recipe">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"/>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                <line x1="10" x2="10" y1="11" y2="17"/>
+                <line x1="14" x2="14" y1="11" y2="17"/>
+              </svg>
+            </button>
+            <button class="btn btn-secondary hidden" id="exit-cooking-btn">Cancel</button>
+            <button class="btn btn-primary hidden" id="complete-cooking-btn" style="background-color: var(--primary-color); border-color: var(--primary-color); font-weight: 700;">Cooked!</button>
+          </div>
+        </div>
+
+        <div class="recipe-detail-container" id="recipe-detail-content">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- ================= EDIT/CREATE RECIPE SCREEN ================= -->
+      <section id="edit-screen" class="app-screen">
+        <div class="editor-header">
+          <h2 id="editor-title-text">Create Recipe</h2>
+          <div class="editor-header-actions">
+            <button class="btn btn-secondary" id="edit-cancel-btn">Cancel</button>
+            <button class="btn btn-primary" id="edit-save-btn">Save Recipe</button>
+          </div>
+        </div>
+
+        <form id="recipe-form" class="editor-form" onsubmit="event.preventDefault();">
+          <div class="editor-layout">
+            
+            <!-- Top Bar: General Info -->
+            <div class="editor-top-bar">
+              <!-- Recipe Title (span 6) -->
+              <div class="form-group" style="grid-column: span 6;">
+                <label for="recipe-title">Recipe Title *</label>
+                <input type="text" id="recipe-title" required placeholder="">
+              </div>
+              
+              <!-- Labels (span 6) -->
+              <div class="form-group" style="grid-column: span 6;">
+                <label style="margin-bottom: 8px;">Labels</label>
+                <div class="editor-labels-list" id="editor-labels-container" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; min-height: 48px;">
+                  <!-- Generated dynamically (checkboxes) -->
+                </div>
+              </div>
+              
+              <!-- Recipe Picture (span 4) -->
+              <div class="form-group" style="grid-column: span 4;">
+                <label>Recipe Picture</label>
+                <div class="image-upload-wrapper" style="display: flex; gap: 12px; align-items: center; height: 48px;">
+                  <div class="image-preview-container" id="image-preview" style="width: 48px; height: 48px; border-radius: var(--radius-sm); margin: 0; flex-shrink: 0;">
+                    <span class="preview-placeholder" style="font-size: 10px; padding: 4px;">No Image</span>
+                  </div>
+                  <input type="file" id="recipe-image-file" accept="image/*" class="hidden-file-input">
+                  <button type="button" class="btn btn-secondary" id="upload-file-trigger" style="padding: 0 16px; height: 48px; font-size: 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 8px; flex: 1;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-icon" style="width: 18px; height: 18px;">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Upload Picture</span>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Nutrition Stats (span 4) -->
+              <div class="form-group" style="grid-column: span 4;">
+                <label>Nutrition Details</label>
+                <div class="form-row three-cols" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                  <input type="number" id="recipe-calories" min="0" placeholder="Calories" title="Calories (kcal)" style="height: 48px;">
+                  <input type="number" id="recipe-protein" min="0" placeholder="Protein" title="Protein (g)" style="height: 48px;">
+                  <input type="number" id="recipe-health" min="1" max="100" placeholder="Health" title="Health Score (1-100)" style="height: 48px;">
+                </div>
+              </div>
+              
+              <!-- Oven Settings (span 4) -->
+              <div class="form-group" style="grid-column: span 4;">
+                <label>Oven Cooking</label>
+                <div class="form-row two-cols" style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                  <label class="checkbox-card" for="recipe-needs-oven">
+                    <input type="checkbox" id="recipe-needs-oven">
+                    <span>Requires Oven</span>
+                  </label>
+                  <div id="temp-value-group" style="display: none; width: 100%;">
+                    <input type="text" id="recipe-temp-value" placeholder="Temp (e.g. 375°F)" style="height: 48px; width: 100%;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Split Pane: Ingredients on the left, Directions on the right -->
+            <div class="editor-split-pane">
+              <!-- Left Column: Ingredients Manager -->
+              <div class="editor-ingredients-col">
+                <div class="form-group ingredients-manager">
+                  <label>Ingredients List *</label>
+                  <p class="field-subtext">Add ingredients below. Then, click any orange ingredient card to insert it directly into your direction step on the right!</p>
+                  
+                  <div class="ingredients-input-row">
+                    <input type="text" id="new-ingredient-input" placeholder="">
+                    <button type="button" class="btn btn-primary-icon" id="add-ingredient-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <ul class="editor-clickable-ingredients" id="editor-ingredients-list-ul">
+                    <!-- Rendered dynamically as orange clickable cards -->
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Right Column: Directions Steps Builder -->
+              <div class="editor-directions-col">
+                <div class="form-group flex-column-grow">
+                  <label>Directions (Step-by-step) *</label>
+                  <p class="field-subtext">Add steps below. Select a step text field, then click any ingredient card on the left to insert it.</p>
+                  
+                  <div class="directions-builder-layout">
+                    <div class="steps-editor-container" id="steps-editor-list">
+                      <!-- Rendered step fields dynamically -->
+                    </div>
+                    
+                    <button type="button" class="btn btn-secondary-dashed" id="add-step-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                      Add Direction Step
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= SETTINGS SCREEN ================= -->
+      <section id="settings-screen" class="app-screen">
+        <div class="settings-header">
+          <h2>App Settings</h2>
+          <button class="btn btn-secondary" id="settings-close-btn">Close</button>
+        </div>
+
+        <div class="settings-content">
+          <div class="settings-card">
+            <h3>Google Drive Cloud Sync</h3>
+            <p>Sync your recipes automatically between your iPad and Mac using a Google Apps Script.</p>
+            
+            <div class="form-group">
+              <label for="settings-gas-url">Google Apps Script Web App URL</label>
+              <input type="url" id="settings-gas-url" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+
+            <div class="sync-actions-row">
+              <button class="btn btn-primary" id="save-settings-btn">Save Web App URL</button>
+              <button class="btn btn-secondary" id="sync-now-btn">Sync Now</button>
+            </div>
+
+            <div class="settings-instructions">
+              <h4>How to set up:</h4>
+              <ol>
+                <li>Open the file [google-apps-script.js](file:///Users/nicholasbarry/Claude:Codex/MyRecipe/google-apps-script.js) generated in your project folder.</li>
+                <li>Go to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> and create a new project.</li>
+                <li>Paste the script code, save, and click <strong>Deploy &gt; New Deployment</strong>.</li>
+                <li>Set Select type to <strong>Web App</strong>, Execute as <strong>Me</strong>, and Who has access to <strong>Anyone</strong>.</li>
+                <li>Deploy, authorize Google Drive permissions, copy the Web App URL and paste it above!</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>Local Backup & Data Management</h3>
+            <p>Export your recipes locally as a JSON file or import a previous backup.</p>
+            <div class="data-actions-row">
+              <button class="btn btn-secondary" id="export-data-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export JSON
+              </button>
+              <button class="btn btn-secondary" id="import-data-trigger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 13 7 8"/>
+                  <line x1="12" y1="13" x2="12" y2="3"/>
+                </svg>
+                Import JSON
+              </button>
+              <input type="file" id="import-data-file" accept=".json" class="hidden">
+              <button class="btn btn-danger" id="reset-data-btn">Reset All Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Right sidebar: Collapsible Timers Panel -->
+    <aside class="timers-sidebar" id="timers-sidebar">
+      <div class="timers-header">
+        <h3>Kitchen Timers</h3>
+        <button class="icon-button" id="close-timers-btn" aria-label="Close Timers">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="timers-content">
+        <!-- Toggle Add Timer Button -->
+        <button class="btn btn-secondary w-full" id="toggle-add-timer-btn" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; height: 42px; border-radius: var(--radius-md);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Timer
+        </button>
+
+        <!-- Add Timer Section (collapsed by default) -->
+        <div class="add-timer-card hidden">
+          
+          <!-- Step 1: Choose Time -->
+          <div id="timer-step-time" class="timer-step-container">
+            <div class="timer-duration-picker-wheels">
+              <div class="picker-wheels-lens"></div>
+              
+              <div class="picker-wheel-container">
+                <div class="picker-wheel" id="picker-wheel-hr" data-type="hr">
+                  <div class="picker-wheel-scroll"></div>
+                </div>
+                <span class="picker-wheel-label">hr</span>
+              </div>
+              
+              <div class="picker-col-colon">:</div>
+              
+              <div class="picker-wheel-container">
+                <div class="picker-wheel" id="picker-wheel-min" data-type="min">
+                  <div class="picker-wheel-scroll"></div>
+                </div>
+                <span class="picker-wheel-label">min</span>
+              </div>
+              
+              <div class="picker-col-colon">:</div>
+              
+              <div class="picker-wheel-container">
+                <div class="picker-wheel" id="picker-wheel-sec" data-type="sec">
+                  <div class="picker-wheel-scroll"></div>
+                </div>
+                <span class="picker-wheel-label">sec</span>
+              </div>
+            </div>
+
+            <!-- Merged Presets Container -->
+            <div class="timer-presets-container" style="margin-top: 16px;">
+              <div class="presets-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="presets-title" style="font-weight: 700; font-family: var(--font-heading); font-size: 16px; color: var(--text-muted);">Presets</span>
+                <button type="button" id="edit-presets-btn" class="edit-presets-btn" style="background: none; border: none; color: var(--primary-color); font-weight: 700; font-size: 15px; cursor: pointer; font-family: var(--font-heading);">Edit</button>
+              </div>
+              
+              <div id="presets-display-wrapper">
+                <div class="timer-presets" id="timer-presets-list">
+                  <!-- Dynamically populated buttons (smart presets prepended here first) -->
+                </div>
+              </div>
+              
+              <div id="presets-edit-wrapper" class="hidden" style="margin-top: 8px;">
+                <div class="presets-edit-grid" id="presets-edit-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px;">
+                  <!-- Dynamically generated inputs -->
+                </div>
+                <div class="presets-edit-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
+                  <button type="button" id="cancel-presets-btn" class="btn btn-secondary" style="padding: 4px 10px; font-size: 13px; height: 30px; border-radius: 6px;">Cancel</button>
+                  <button type="button" id="save-presets-btn" class="btn btn-primary" style="padding: 4px 10px; font-size: 13px; height: 30px; border-radius: 6px;">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 1 actions side-by-side -->
+            <div class="timer-form-actions" style="display: flex; gap: 12px; margin-top: 24px;">
+              <button type="button" class="btn btn-secondary" id="cancel-timer-step1-btn" style="flex: 1; height: 44px; font-weight: 700;">Cancel</button>
+              <button type="button" class="btn btn-primary" id="next-timer-step-btn" style="flex: 2; height: 44px; font-weight: 700;">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Enter Label popup (inside same space) -->
+          <div id="timer-step-label" class="timer-step-container hidden">
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="text" id="timer-label" placeholder="Timer Label" style="height: 48px; border-radius: var(--radius-sm); font-size: 16px; width: 100%; border: 1px solid var(--border-color); padding: 0 12px; box-sizing: border-box;">
+            </div>
+            
+            <div class="timer-form-actions" style="display: flex; gap: 12px; width: 100%; margin-top: 16px;">
+              <button type="button" class="btn btn-secondary" id="back-timer-step-btn" style="flex: 1; height: 44px; font-weight: 700;">Back</button>
+              <button type="button" class="btn btn-primary" id="start-timer-btn" style="flex: 2; height: 44px; font-weight: 700;">Start Timer</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Active Timers List -->
+        <div class="active-timers-container">
+          <h4>Active Timers</h4>
+          <div class="active-timers-list" id="active-timers-list">
+            <!-- Rendered dynamically -->
+            <p class="timers-empty-msg">No active timers.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Custom label prompt modal -->
+  <div class="modal-overlay hidden" id="custom-label-modal">
+    <div class="modal-card">
+      <h3>Create Custom Label</h3>
+      <div class="form-group">
+        <label for="custom-label-input">Label Name</label>
+        <input type="text" id="custom-label-input" placeholder="">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="custom-label-cancel">Cancel</button>
+        <button class="btn btn-primary" id="custom-label-confirm">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crop Image Modal -->
+  <div class="modal-overlay hidden" id="crop-image-modal">
+    <div class="modal-card" style="max-width: 460px; gap: 16px;">
+      <h3 style="font-family: var(--font-heading); font-size: 22px; font-weight: 700;">Crop Recipe Photo</h3>
+      <p class="field-subtext">Drag/swipe the photo to position it, and use the slider to zoom.</p>
+      
+      <div class="cropper-viewport-container" style="display: flex; justify-content: center; margin: 10px 0;">
+        <div id="cropper-viewport" style="width: 300px; height: 200px; overflow: hidden; position: relative; border-radius: 8px; border: 2px solid var(--primary-color); background: #f0f0f0; cursor: move; box-shadow: var(--shadow-md);">
+          <img id="cropper-image" src="" style="position: absolute; top: 0; left: 0; transform-origin: 0 0; user-select: none; -webkit-user-drag: none; pointer-events: none;">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label style="font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: var(--text-main);">Zoom</label>
+        <input type="range" id="cropper-zoom" min="1" max="3" step="0.05" value="1" style="width: 100%; accent-color: var(--primary-color); cursor: pointer;">
+      </div>
+      
+      <div class="modal-actions" style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+        <button class="btn btn-secondary" id="cropper-cancel" style="padding: 8px 16px; font-size: 15px;">Cancel</button>
+        <button class="btn btn-primary" id="cropper-save" style="padding: 8px 16px; font-size: 15px;">Crop & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

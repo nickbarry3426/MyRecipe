@@ -5,13 +5,2152 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MyRecipe — Your Custom Cooking Notebook</title>
   <meta name="description" content="A premium, clean recipe tracker and notebook with smart ingredients integration, timers, and cloud sync. Optimized for iPad and cooking environments.">
+  <style>
+/* ==========================================================================
+   MYRECIPE APP - STYLESHEET
+   Aesthetics: White background, Orange primary, clean typography, micro-interactions
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --primary-color: #ff6f3c;
+  --primary-hover: #e55a2b;
+  --primary-light: #fff2ed;
+  --primary-alpha: rgba(255, 111, 60, 0.1);
+  --primary-alpha-strong: rgba(255, 111, 60, 0.25);
   
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  --bg-color: #faf9f6;
+  --card-bg: #ffffff;
+  --text-main: #2b2927;
+  --text-muted: #726e6a;
+  --text-light: #a39f9a;
   
-  <link rel="stylesheet" href="style.css">
+  --border-color: #eeebe5;
+  --border-focus: #ff6f3c;
+  
+  --success-color: #2ec4b6;
+  --danger-color: #e71d36;
+  --danger-hover: #c51327;
+  --info-color: #3a86c8;
+  
+  /* Fonts */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Shadows & Radius */
+  --shadow-sm: 0 2px 8px rgba(43, 41, 39, 0.04);
+  --shadow-md: 0 8px 24px rgba(43, 41, 39, 0.06);
+  --shadow-lg: 0 16px 40px rgba(43, 41, 39, 0.1);
+  
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-round: 50%;
+  
+  /* Animations */
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Widths */
+  --timers-sidebar-width: 360px;
+  --header-height: 72px;
+}
+
+/* Reset & Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2dfd9;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+
+/* Layout */
+.app-header {
+  height: var(--header-height);
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: relative;
+  z-index: 100;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--primary-color);
+}
+
+.header-logo h1 {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.main-container {
+  display: flex;
+  height: calc(100% - var(--header-height));
+  position: relative;
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--bg-color);
+}
+
+/* Sync Indicator */
+.sync-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+}
+.sync-indicator.online {
+  color: var(--success-color);
+}
+.sync-indicator.offline {
+  color: var(--text-muted);
+}
+.sync-indicator.syncing {
+  color: var(--primary-color);
+}
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+.sync-indicator.syncing .sync-dot {
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Screens Management */
+.app-screen {
+  display: none;
+  height: 100%;
+  overflow-y: auto;
+  padding: 32px;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.app-screen.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--primary-alpha-strong);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+.btn-secondary:hover {
+  background-color: var(--bg-color);
+  border-color: var(--text-light);
+}
+
+.btn-secondary-dashed {
+  background-color: transparent;
+  border: 2px dashed var(--border-color);
+  color: var(--text-muted);
+  width: 100%;
+  padding: 16px;
+}
+.btn-secondary-dashed:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+.btn-danger:hover {
+  background-color: var(--danger-hover);
+}
+
+.btn-primary-icon, .btn-secondary-icon, .btn-danger-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+.btn-primary-icon {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+.btn-primary-icon svg {
+  stroke: white;
+  width: 18px;
+  height: 18px;
+}
+
+.btn-primary-icon:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.05);
+}
+.btn-secondary-icon:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+.btn-danger-icon {
+  color: var(--danger-color);
+}
+.btn-danger-icon:hover {
+  background-color: #fff0f1;
+  border-color: var(--danger-color);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+.icon-button:hover {
+  background-color: var(--bg-color);
+  color: var(--primary-color);
+}
+.icon-button svg {
+  width: 24px;
+  height: 24px;
+}
+
+.timer-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--card-bg);
+}
+
+/* ================= LIST SCREEN STYLES ================= */
+.hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.hero-section h2 {
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.controls-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+}
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--text-light);
+}
+.search-box input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px 0 52px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--text-main);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+.search-box input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px var(--primary-alpha);
+}
+
+.filters-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.labels-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  flex: 1;
+  scrollbar-width: none; /* Hide scrollbar for clean layout */
+}
+.labels-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.label-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.label-pill:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+.label-pill.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 10px var(--primary-alpha-strong);
+}
+
+/* Grid of recipe cards */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding-bottom: 40px;
+}
+
+.recipe-card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.recipe-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-alpha-strong);
+}
+
+.card-image-container {
+  height: 180px;
+  width: 100%;
+  position: relative;
+  background-color: var(--primary-light);
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+.recipe-card:hover .card-image {
+  transform: scale(1.04);
+}
+
+.card-image-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  gap: 8px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, #ffe8de 100%);
+}
+.card-fallback-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.7;
+}
+
+.card-cook-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: rgba(43, 41, 39, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-info {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.card-label-tag {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 46px; /* consistent sizing */
+}
+
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 14px;
+  margin-top: auto;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.stat-val {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.stat-lbl {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+.empty-state svg {
+  width: 80px;
+  height: 80px;
+  color: var(--text-light);
+  margin-bottom: 24px;
+}
+.empty-state h3 {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.empty-state p {
+  color: var(--text-muted);
+  max-width: 320px;
+  margin-bottom: 24px;
+  font-size: 17px;
+}
+.hidden {
+  display: none !important;
+}
+
+/* ================= VIEW SCREEN STYLES ================= */
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.view-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.recipe-detail-container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.detail-hero {
+  height: 320px;
+  width: 100%;
+  position: relative;
+  background-color: var(--primary-light);
+}
+.detail-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.detail-hero-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%);
+  padding: 32px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.detail-labels {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.detail-label-tag {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.detail-title {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 38px;
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+}
+
+.detail-stats-strip {
+  display: flex;
+  background-color: var(--primary-light);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 32px;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.detail-stat-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.detail-stat-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary-color);
+}
+.detail-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+.detail-stat-val {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.detail-stat-lbl {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.detail-cook-tracker {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cook-count-display {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-main);
+  background-color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Split Layout for Ingredients vs Directions */
+.detail-body {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 400px;
+}
+
+.detail-ingredients-column {
+  border-right: 1px solid var(--border-color);
+  background-color: #faf9f7;
+  padding: 32px;
+}
+
+.detail-ingredients-column h3 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.ingredients-checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ingredient-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.ingredient-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text-light);
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all var(--transition-fast);
+}
+.ingredient-checkbox:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.ingredient-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.ingredient-text {
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+}
+
+.ingredient-checkbox:checked + .ingredient-text {
+  color: var(--text-light);
+  text-decoration: line-through;
+}
+
+.ingredient-check-item.active-highlight {
+  background-color: var(--primary-alpha);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 4px var(--primary-alpha);
+}
+
+.detail-directions-column {
+  padding: 32px;
+}
+
+.detail-directions-column h3 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--text-main);
+}
+
+.directions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.direction-step {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.step-number-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  box-shadow: 0 3px 6px var(--primary-alpha-strong);
+}
+
+.step-instruction-text {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-main);
+  flex: 1;
+}
+
+/* Stylized ingredient tags in directions */
+.step-ingredient-link {
+  display: inline-block;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-alpha-strong);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin: 0 2px;
+}
+.step-ingredient-link:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: scale(1.02);
+}
+
+/* Editor step pills styling (contenteditable) */
+.editor-step-pill {
+  display: inline-block;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-alpha-strong);
+  margin: 0 2.5px;
+  user-select: none;
+  cursor: default;
+}
+.editor-step-pill::selection {
+  background: transparent;
+}
+
+/* ================= EDITOR/CREATE RECIPE STYLES ================= */
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.editor-header h2 {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 800;
+}
+.editor-header-actions {
+  display: flex;
+  gap: 12px;
+}
+.editor-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.editor-top-bar {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  align-items: start;
+}
+
+/* Styled Checkbox Card */
+.checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0 16px;
+  background-color: var(--bg-color);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+.checkbox-card:hover {
+  border-color: var(--primary-color);
+  background-color: white;
+}
+.checkbox-card input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+.checkbox-card span {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.editor-split-pane {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.editor-ingredients-col {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.editor-directions-col {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flex-column-grow {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-main);
+}
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="url"],
+.form-group select {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 0 16px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  outline: none;
+  background-color: var(--bg-color);
+  transition: all var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary-color);
+  background-color: white;
+  box-shadow: 0 0 0 3px var(--primary-alpha);
+}
+
+.form-row {
+  display: grid;
+  gap: 16px;
+}
+.form-row.two-cols {
+  grid-template-columns: 1fr 1fr;
+}
+.form-row.three-cols {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.field-subtext {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Image Upload UI */
+.image-upload-wrapper {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.image-preview-container {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.image-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.preview-placeholder {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  padding: 8px;
+}
+.upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.hidden-file-input {
+  display: none !important;
+}
+.or-separator {
+  font-size: 13px;
+  color: var(--text-light);
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Ingredients Manager List */
+.ingredients-input-row {
+  display: flex;
+  gap: 8px;
+}
+.ingredients-input-row input {
+  flex: 1;
+}.editor-clickable-ingredients {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.editor-ingredient-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--primary-light);
+  border: 1px solid var(--primary-alpha-strong);
+  color: var(--primary-color);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.editor-ingredient-card:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px var(--primary-alpha-strong);
+}
+
+.editor-ingredient-card .remove-chip-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.editor-ingredient-card .remove-chip-btn:hover {
+  opacity: 1;
+}
+
+.editor-ingredient-card .remove-chip-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Direction Steps Builder */
+.directions-builder-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+.steps-editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.step-edit-card {
+  display: flex;
+  gap: 12px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  position: relative;
+}
+.step-edit-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--text-light);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.step-edit-card .step-input-editor {
+  flex: 1;
+  min-height: 80px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  font-family: var(--font-body);
+  font-size: 18px; /* matching the prefer-bigger-text style */
+  outline: none;
+  background-color: white;
+  line-height: 1.6;
+  overflow-y: auto;
+  word-break: break-word;
+}
+.step-edit-card .step-input-editor:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-alpha);
+}
+.step-edit-card .step-input-editor:empty::before {
+  content: attr(placeholder);
+  color: var(--text-light);
+  pointer-events: none;
+  display: block;
+}
+.remove-step-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color var(--transition-fast);
+}
+.remove-step-btn:hover {
+  color: var(--danger-color);
+}
+.remove-step-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+
+.editor-labels-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+.editor-label-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted);
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+.editor-label-checkbox-label input {
+  display: none;
+}
+.editor-label-checkbox-label:has(input:checked) {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* ================= SETTINGS SCREEN STYLES ================= */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.settings-header h2 {
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.settings-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings-card h3 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+}
+.settings-card p {
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.sync-actions-row, .data-actions-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.settings-instructions {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-top: 8px;
+}
+.settings-instructions h4 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.settings-instructions ol {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.settings-instructions a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+.settings-instructions a:hover {
+  text-decoration: underline;
+}
+
+/* ================= TIMERS SIDEBAR STYLES ================= */
+.timers-sidebar {
+  width: var(--timers-sidebar-width);
+  height: 100%;
+  background-color: var(--card-bg);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 90;
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+  box-shadow: var(--shadow-lg);
+}
+
+.timers-sidebar.open {
+  transform: translateX(0);
+}
+
+.timers-header {
+  height: var(--header-height);
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.timers-header h3 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.timers-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.add-timer-card {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Vertical Scroll Picker styled like Apple */
+.timer-duration-picker-wheels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.picker-wheels-lens {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  right: 12px;
+  height: 36px;
+  transform: translateY(-50%);
+  background-color: var(--primary-alpha);
+  border-top: 1.5px solid var(--primary-color);
+  border-bottom: 1.5px solid var(--primary-color);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.picker-wheel-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+}
+
+.picker-wheel {
+  width: 100%;
+  height: 110px; /* viewport height */
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  position: relative;
+  z-index: 1;
+}
+
+.picker-wheel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.picker-wheel-scroll {
+  /* Pads top/bottom so first/last elements line up in center selection area */
+  padding-top: 37px;
+  padding-bottom: 37px;
+}
+
+.picker-wheel-item {
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-light);
+  scroll-snap-align: center;
+  transition: all var(--transition-fast) ease-out;
+  cursor: pointer;
+}
+
+.picker-wheel-item.active {
+  color: var(--primary-color);
+  font-size: 23px;
+  font-weight: 800;
+  transform: scale(1.05);
+}
+
+.picker-wheel-label {
+  position: absolute;
+  bottom: 0px;
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.picker-col-colon {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-light);
+  align-self: center;
+  line-height: 1;
+  z-index: 3;
+}
+
+/* Preset edits */
+.preset-edit-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+}
+.preset-edit-input-wrapper label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+}
+.preset-edit-input-wrapper input {
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  background: transparent;
+}
+.preset-edit-input-wrapper span {
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.timer-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.preset-btn {
+  height: 36px;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.preset-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+.preset-btn.recipe-specific-preset {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-alpha-strong);
+}
+.preset-btn.recipe-specific-preset:hover {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.active-timers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.active-timers-container h4 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.active-timers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timers-empty-msg {
+  font-size: 15px;
+  color: var(--text-light);
+  text-align: center;
+  padding: 24px 0;
+  font-style: italic;
+}
+
+/* Individual Active Timer Card */
+.active-timer-card {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.active-timer-card.ringing {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 12px var(--primary-alpha-strong);
+  animation: flashRedBorder 1s infinite alternate;
+}
+
+@keyframes flashRedBorder {
+  0% { box-shadow: 0 0 4px var(--primary-alpha); }
+  100% { box-shadow: 0 0 16px rgba(255, 111, 60, 0.6); background-color: var(--primary-light); }
+}
+
+.timer-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.timer-card-label {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-main);
+  word-break: break-word;
+  max-width: 140px;
+}
+.timer-card-time {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.active-timer-card.ringing .timer-card-time {
+  color: var(--primary-color);
+  animation: bounceText 0.5s infinite alternate;
+}
+
+@keyframes bounceText {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+.timer-progress-container {
+  height: 6px;
+  background-color: var(--bg-color);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+}
+.timer-progress-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+  width: 100%;
+  transition: width 1s linear;
+}
+.timer-card-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.timer-ctrl-btn {
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+.timer-ctrl-btn:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+.timer-ctrl-btn.btn-danger-hover:hover {
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+  background-color: #fff0f1;
+}
+.timer-ctrl-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ringing-dismiss-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 8px 16px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: background-color var(--transition-fast);
+}
+.ringing-dismiss-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* ================= MODAL DIALOGS ================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(43, 41, 39, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInModal 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 32px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUpModal {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-card h3 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Confetti Effect / Cook Trigger animation */
+.cooked-pulse {
+  animation: cookPulseAnim 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes cookPulseAnim {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ================= RESPONSIVE LAYOUTS (iPad & Mobile) ================= */
+
+/* iPad & tablet landscape layout */
+@media (min-width: 1024px) {
+  .timers-sidebar {
+    position: relative;
+    transform: none;
+    width: 0;
+    opacity: 0;
+    border-left: none;
+    box-shadow: none;
+    overflow: hidden;
+  }
+  
+  .timers-sidebar.open {
+    width: var(--timers-sidebar-width);
+    opacity: 1;
+    border-left: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* iPad Portrait / Large Tablets (1024px and below) */
+@media (max-width: 1023px) {
+  .editor-grid {
+    grid-template-columns: 1fr; /* stack panels */
+  }
+  
+  .detail-body {
+    grid-template-columns: 1fr; /* stack ingredients above directions */
+  }
+  
+  .detail-ingredients-column {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .timers-sidebar {
+    position: fixed;
+    right: 0;
+    top: var(--header-height);
+    bottom: 0;
+    height: calc(100% - var(--header-height));
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+  }
+  
+  .detail-stats-strip {
+    padding: 20px 24px;
+    gap: 24px;
+  }
+  
+  .detail-cook-tracker {
+    width: 100%;
+    margin-top: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 16px;
+  }
+}
+
+/* Mobile Devices (600px and below) */
+@media (max-width: 600px) {
+  .app-screen {
+    padding: 16px;
+  }
+  
+  .hero-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .hero-section h2 {
+    font-size: 28px;
+  }
+  
+  .controls-bar {
+    margin-bottom: 20px;
+  }
+  
+  .recipe-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .detail-hero {
+    height: 200px;
+  }
+  
+  .detail-hero-overlay {
+    padding: 16px;
+  }
+  
+  .detail-title {
+    font-size: 26px;
+  }
+  
+  .detail-stats-strip {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .detail-stat-box {
+    width: 45%;
+  }
+  
+  .detail-ingredients-column {
+    padding: 20px;
+  }
+  
+  .detail-directions-column {
+    padding: 20px;
+  }
+  
+  .timers-sidebar {
+    width: 100%; /* Take full width on small mobiles */
+  }
+  
+  .form-row.two-cols,
+  .form-row.three-cols {
+    grid-template-columns: 1fr;
+  }
+  
+  .image-upload-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .image-preview-container {
+    width: 100%;
+    height: 140px;
+  }
+}
+
+/* ==========================================================================
+   ACTIVE COOKING MODE STYLES
+   ========================================================================== */
+
+.cooking-header-banner {
+  background-color: var(--card-bg);
+  padding: 24px 32px;
+  border-bottom: 2px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.cooking-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cooking-oven-badge {
+  background-color: var(--primary-light);
+  border: 1px solid var(--primary-alpha-strong);
+  color: var(--primary-color);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cooking-oven-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.cooking-body {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Checklist Steps in Cooking Mode */
+.step-cooking-row {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), opacity var(--transition-fast);
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.step-cooking-row:hover {
+  background-color: var(--bg-color);
+}
+
+.step-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--text-light);
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  margin-top: 5px;
+  transition: all var(--transition-fast);
+}
+
+.step-checkbox:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.step-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.step-checkbox:checked ~ .step-instruction-text {
+  color: var(--text-light);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.step-checkbox:checked ~ .step-number-circle {
+  background-color: var(--text-light);
+  box-shadow: none;
+  opacity: 0.5;
+}
+
+/* Bullet styling for Informational Mode ingredients list */
+.ingredient-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.ingredient-bullet {
+  color: var(--primary-color);
+  font-size: 20px;
+  line-height: 1;
+  margin-top: -2px;
+  user-select: none;
+}
+
+/* Custom button states */
+.btn-secondary-cancel {
+  background-color: var(--danger-color) !important;
+  color: white !important;
+  border-color: var(--danger-color) !important;
+}
+
+.btn-secondary-cancel:hover {
+  background-color: var(--danger-hover) !important;
+}
+
+/* Custom Orange Theme Overrides for Edit and Delete Buttons */
+#view-edit-btn {
+  background-color: var(--primary-light) !important;
+  border: 1px solid var(--primary-alpha-strong) !important;
+  color: var(--primary-color) !important;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+#view-edit-btn:hover {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--primary-alpha-strong) !important;
+}
+
+#view-delete-btn {
+  background-color: var(--primary-light) !important;
+  border: 1px solid var(--primary-alpha-strong) !important;
+  color: var(--primary-color) !important;
+  transition: all var(--transition-fast);
+}
+
+#view-delete-btn:hover {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--primary-alpha-strong) !important;
+}
+
+/* Timer Step Transition Popups */
+.timer-step-container {
+  transition: opacity var(--transition-fast) ease, transform var(--transition-fast) ease;
+}
+#timer-step-label {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+#timer-step-label.hidden {
+  display: none !important;
+}
+
+/* Step 2 active overrides for add-timer-card */
+.add-timer-card.step2-active {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  gap: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Inline Step Timer Pill Buttons */
+.step-timers-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.step-timer-btn {
+  background-color: var(--primary-color);
+  color: white !important;
+  border: none;
+  border-radius: 20px; /* pill styling */
+  padding: 3px 12px; /* adjusted padding for larger font size */
+  font-family: inherit; /* match surrounding text font family */
+  font-size: inherit; /* match surrounding text font size */
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px var(--primary-alpha-strong);
+  margin: 2px 4px; /* margins for inline wrapping */
+  vertical-align: middle;
+  position: relative;
+  top: -2px; /* center vertically within the text line */
+}
+
+.step-timer-btn svg {
+  stroke: white;
+}
+
+.step-timer-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px var(--primary-alpha-strong);
+}
+
+.step-timer-btn:active {
+  transform: translateY(0);
+}
+  </style>
 </head>
 <body>
   <!-- Header -->
@@ -295,12 +2434,154 @@
             <div class="settings-instructions">
               <h4>How to set up:</h4>
               <ol>
-                <li>Open the file [google-apps-script.js](file:///Users/nicholasbarry/Claude:Codex/MyRecipe/google-apps-script.js) generated in your project folder.</li>
+                <li>Copy the embedded Google Apps Script below.</li>
                 <li>Go to <a href="https://script.google.com" target="_blank" rel="noopener">script.google.com</a> and create a new project.</li>
                 <li>Paste the script code, save, and click <strong>Deploy &gt; New Deployment</strong>.</li>
                 <li>Set Select type to <strong>Web App</strong>, Execute as <strong>Me</strong>, and Who has access to <strong>Anyone</strong>.</li>
-                <li>Deploy, authorize Google Drive permissions, copy the Web App URL and paste it above!</li>
+                <li>Deploy, authorize Google Drive permissions, copy the Web App URL and paste it above.</li>
               </ol>
+              <textarea id="embedded-gas-script" readonly aria-label="Google Apps Script setup code" style="width:100%; min-height:220px; margin-top:12px; padding:12px; border:1px solid var(--border-color); border-radius:var(--radius-md); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; line-height:1.45; color:var(--text-main); background:#fff; resize:vertical;">/**
+ * ==========================================================================
+ * GOOGLE APPS SCRIPT FOR MYRECIPE APP CLOUD SYNC
+ * ==========================================================================
+ * 
+ * INSTRUCTIONS FOR DEPLOYMENT:
+ * 
+ * 1. Open Google Apps Script: Go to https://script.google.com/
+ * 2. Create a new project named "MyRecipe Sync".
+ * 3. Delete any code in the editor, and paste this entire script inside.
+ * 4. Save the project (click the disk icon or press Cmd/Ctrl + S).
+ * 5. Click "Deploy" (blue button in top-right) and select "New deployment".
+ * 6. Click the gear icon next to "Select type" and choose "Web app".
+ * 7. Configure the settings exactly as follows:
+ *    - Description: MyRecipe Database Sync
+ *    - Execute as: "Me" (your email address)
+ *    - Who has access: "Anyone"
+ *    *(Note: "Anyone" is required so your iPad/browser can connect to it. It executes as you,
+ *     which allows it to read/write a file in your own Google Drive).*
+ * 8. Click "Deploy".
+ * 9. You will be prompted to "Authorize access". Grant the permissions to let the script
+ *    read and write files in your Google Drive.
+ * 10. Once deployed, copy the "Web app URL" (it will look like: 
+ *     https://script.google.com/macros/s/AKfycb.../exec).
+ * 11. Open your MyRecipe app, click the Settings gear icon in the header, paste this URL
+ *     into the input box, and click "Save Web App URL".
+ * 12. Tap "Sync Now" to push your seed recipes to Google Drive!
+ */
+
+const FILE_NAME = "my_recipes_db.json";
+const FOLDER_NAME = "MyRecipe App";
+
+/**
+ * Handles GET requests.
+ * Fetches the current database from Google Drive and returns it.
+ */
+function doGet(e) {
+  try {
+    const data = loadDatabase();
+    
+    // Check for JSONP callback parameter to support cross-domain GET request bypass
+    if (e.parameter &amp;&amp; e.parameter.callback) {
+      const callbackName = e.parameter.callback;
+      const jsContent = callbackName + "(" + JSON.stringify(data) + ");";
+      return ContentService.createTextOutput(jsContent)
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    if (e.parameter &amp;&amp; e.parameter.callback) {
+      return ContentService.createTextOutput(e.parameter.callback + "(" + JSON.stringify({ error: error.toString() }) + ");")
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(JSON.stringify({ error: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Handles POST requests.
+ * Receives the database payload from the app and overwrites the file in Google Drive.
+ */
+function doPost(e) {
+  try {
+    let postData = "";
+    if (e.postData &amp;&amp; e.postData.contents) {
+      postData = e.postData.contents;
+    } else {
+      throw new Error("No payload content received.");
+    }
+    
+    // Parse to ensure it is valid JSON
+    const parsedData = JSON.parse(postData);
+    
+    // Save to Google Drive file
+    saveDatabase(parsedData);
+    
+    const response = { success: true, timestamp: new Date().toISOString() };
+    return ContentService.createTextOutput(JSON.stringify(response))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    const errResponse = { success: false, error: error.toString() };
+    return ContentService.createTextOutput(JSON.stringify(errResponse))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Helper to load the database JSON file.
+ * Returns default blank dataset if folder or file doesn't exist.
+ */
+function loadDatabase() {
+  const folder = getOrCreateFolder();
+  const files = folder.getFilesByName(FILE_NAME);
+  
+  if (files.hasNext()) {
+    const file = files.next();
+    const content = file.getAs("text/plain").getDataAsString();
+    return JSON.parse(content);
+  }
+  
+  // Return default template if file does not exist
+  return {
+    recipes: [],
+    customLabels: []
+  };
+}
+
+/**
+ * Helper to save/overwrite the database JSON file in the target folder.
+ */
+function saveDatabase(dataObj) {
+  const folder = getOrCreateFolder();
+  const files = folder.getFilesByName(FILE_NAME);
+  
+  const contentString = JSON.stringify(dataObj, null, 2);
+  
+  if (files.hasNext()) {
+    // Overwrite existing file contents
+    const file = files.next();
+    file.setContent(contentString);
+  } else {
+    // Create new file
+    folder.createFile(FILE_NAME, contentString, MimeType.PLAIN_TEXT);
+  }
+}
+
+/**
+ * Helper to fetch or create the dedicated MyRecipe folder in Google Drive root.
+ */
+function getOrCreateFolder() {
+  const folders = DriveApp.getFoldersByName(FOLDER_NAME);
+  if (folders.hasNext()) {
+    return folders.next();
+  } else {
+    return DriveApp.createFolder(FOLDER_NAME);
+  }
+}</textarea>
+              <button type="button" class="btn btn-secondary" style="margin-top:10px;" onclick="navigator.clipboard.writeText(document.getElementById('embedded-gas-script').value).then(() => { this.textContent = 'Copied Script'; setTimeout(() => { this.textContent = 'Copy Script'; }, 1500); }).catch(() => { document.getElementById('embedded-gas-script').select(); });">Copy Script</button>
             </div>
           </div>
 
@@ -485,7 +2766,2551 @@
       </div>
     </div>
   </div>
+  <script>
+/* ==========================================================================
+   MYRECIPE APP - CORE APPLICATION LOGIC
+   ========================================================================== */
 
-  <script src="app.js"></script>
+// --- Global State ---
+let recipes = [];
+let customLabels = [];
+let activeFilterLabel = 'All';
+let searchQuery = '';
+let currentView = 'list-screen'; // 'list-screen', 'view-screen', 'edit-screen', 'settings-screen'
+let activeRecipeId = null; // For viewing/editing
+let isCookingMode = false; // For informational vs active cook views
+let selectedTimerDuration = 0; // Total seconds of the timer currently being created
+
+// Timers State
+let timers = [];
+let currentRecipeTimers = []; // Smart timers parsed from directions
+let timerInterval = null;
+let audioCtx = null;
+let activeAlarms = {}; // Map of timerId -> interval/oscillator references for ringing
+
+// Editor temporary state
+let editorIngredients = [];
+let activeStepEditor = null;
+let savedEditorSelection = null;
+let lastActiveEditor = null;
+
+// Default Constants
+const DEFAULT_LABELS = ['Breakfast', 'Lunch', 'Dinner', 'Dessert'];
+
+// --- DOM References ---
+const screens = {
+  list: document.getElementById('list-screen'),
+  view: document.getElementById('view-screen'),
+  edit: document.getElementById('edit-screen'),
+  settings: document.getElementById('settings-screen')
+};
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+  loadLocalData();
+  loadPresets();
+  setupEventListeners();
+  initDurationPickerWheels();
+  setupCropperEvents();
+  renderPresets();
+  renderFilters();
+  renderRecipeList();
+  startTimerEngine();
+  
+  // Try cloud sync on startup if URL exists
+  const gasUrl = getGasUrl();
+  if (gasUrl) {
+    updateSyncStatus('syncing', 'Ready to sync');
+    
+    // Defer the first sync until the user interacts with the page 
+    // to bypass Safari/macOS cross-site tracking blocks on page load
+    const initialSync = () => {
+      updateSyncStatus('syncing', 'Syncing with cloud...');
+      fetchFromCloud();
+      document.removeEventListener('click', initialSync);
+      document.removeEventListener('touchstart', initialSync);
+    };
+    
+    document.addEventListener('click', initialSync);
+    document.addEventListener('touchstart', initialSync);
+  } else {
+    updateSyncStatus('offline', 'Offline Mode');
+  }
+});
+
+// Unlock Web Audio API on first user interaction
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+// --- Data Persistence ---
+function loadLocalData() {
+  // Recipes
+  const storedRecipes = localStorage.getItem('myrecipe_recipes');
+  if (storedRecipes) {
+    try {
+      recipes = JSON.parse(storedRecipes);
+    } catch (e) {
+      console.error('Error parsing stored recipes:', e);
+      recipes = [];
+    }
+  } else {
+    // Inject seed recipes if empty
+    recipes = getSeedRecipes();
+    saveRecipesToLocal();
+  }
+
+  // Custom Labels
+  const storedLabels = localStorage.getItem('myrecipe_custom_labels');
+  if (storedLabels) {
+    try {
+      customLabels = JSON.parse(storedLabels);
+    } catch (e) {
+      console.error('Error parsing custom labels:', e);
+      customLabels = [];
+    }
+  }
+
+  // Timers: Let's read saved timers if they were running, but reset status
+  const storedTimers = localStorage.getItem('myrecipe_timers');
+  if (storedTimers) {
+    try {
+      const parsedTimers = JSON.parse(storedTimers);
+      // Only keep timers that were running and calculate elapsed time
+      const now = Date.now();
+      timers = parsedTimers.map(t => {
+        if (t.status === 'running' && t.saveTime) {
+          const elapsed = Math.floor((now - t.saveTime) / 1000);
+          const remaining = Math.max(0, t.remainingSeconds - elapsed);
+          return {
+            ...t,
+            remainingSeconds: remaining,
+            status: remaining > 0 ? 'running' : 'ringing'
+          };
+        }
+        return { ...t, status: t.status === 'running' ? 'paused' : t.status };
+      });
+    } catch (e) {
+      console.error('Error parsing saved timers:', e);
+      timers = [];
+    }
+  }
+}
+
+function saveRecipesToLocal() {
+  localStorage.setItem('myrecipe_recipes', JSON.stringify(recipes));
+}
+
+function saveLabelsToLocal() {
+  localStorage.setItem('myrecipe_custom_labels', JSON.stringify(customLabels));
+}
+
+function saveTimersToLocal() {
+  // Add timestamp so we can recalculate on reload
+  const serialized = timers.map(t => ({
+    ...t,
+    saveTime: Date.now()
+  }));
+  localStorage.setItem('myrecipe_timers', JSON.stringify(serialized));
+}
+
+function getGasUrl() {
+  return localStorage.getItem('myrecipe_gas_url') || '';
+}
+
+function setGasUrl(url) {
+  localStorage.setItem('myrecipe_gas_url', url);
+}
+
+// --- Sync Service (Google Apps Script client) ---
+async function fetchFromCloud() {
+  const url = getGasUrl();
+  if (!url) return;
+
+  updateSyncStatus('syncing', 'Syncing...');
+  
+  // Try modern fetch with redirect: follow and no custom headers first
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      mode: 'cors',
+      redirect: 'follow'
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.recipes) {
+        processCloudData(data);
+        return;
+      }
+      throw new Error('Database empty or invalid in cloud');
+    } else {
+      throw new Error('Response not OK (status: ' + response.status + ')');
+    }
+  } catch (fetchError) {
+    console.warn('Fetch GET failed, attempting CORS-bypass JSONP fallback:', fetchError);
+    
+    // JSONP Fallback (guaranteed to bypass CORS on file:// or localhost redirects)
+    try {
+      await fetchFromCloudJSONP(url);
+    } catch (jsonpError) {
+      console.error('Cloud Sync GET failed (both Fetch and JSONP failed):', jsonpError);
+      updateSyncStatus('offline', 'Sync Connection Failed');
+      throw jsonpError;
+    }
+  }
+}
+
+function fetchFromCloudJSONP(url) {
+  return new Promise((resolve, reject) => {
+    // Generate a unique callback name to prevent collisions
+    const callbackName = 'myrecipe_callback_' + Math.round(Math.random() * 1000000);
+    
+    // Define the callback function on the global window scope
+    window[callbackName] = function(data) {
+      // Clean up callback and script tag immediately
+      delete window[callbackName];
+      const scriptEl = document.getElementById(scriptId);
+      if (scriptEl) scriptEl.remove();
+      
+      if (data && data.recipes) {
+        processCloudData(data);
+        resolve();
+      } else if (data && data.error) {
+        reject(new Error('Cloud Script Error: ' + data.error));
+      } else {
+        reject(new Error('Invalid JSONP data response structure'));
+      }
+    };
+    
+    const separator = url.includes('?') ? '&' : '?';
+    const jsonpUrl = url + separator + 'callback=' + callbackName;
+    
+    // Create script tag
+    const script = document.createElement('script');
+    const scriptId = 'jsonp_' + callbackName;
+    script.id = scriptId;
+    script.src = jsonpUrl;
+    
+    script.onerror = function() {
+      delete window[callbackName];
+      const scriptEl = document.getElementById(scriptId);
+      if (scriptEl) scriptEl.remove();
+      reject(new Error('JSONP script load error - script block failed to reach endpoint'));
+    };
+    
+    document.body.appendChild(script);
+  });
+}
+
+function processCloudData(data) {
+  const cloudRecipes = data.recipes || [];
+  const cloudLabels = data.customLabels || [];
+  
+  // Merge recipes
+  const mergedRecipes = [...recipes];
+  cloudRecipes.forEach(cr => {
+    const idx = mergedRecipes.findIndex(lr => lr.id === cr.id);
+    if (idx > -1) {
+      // Keep the one with more cooks, or cloud version
+      if (cr.cookCount >= mergedRecipes[idx].cookCount) {
+        mergedRecipes[idx] = cr;
+      }
+    } else {
+      mergedRecipes.push(cr);
+    }
+  });
+  
+  recipes = mergedRecipes;
+  saveRecipesToLocal();
+
+  // Merge labels
+  const mergedLabels = Array.from(new Set([...customLabels, ...cloudLabels]));
+  customLabels = mergedLabels;
+  saveLabelsToLocal();
+
+  renderFilters();
+  renderRecipeList();
+  updateSyncStatus('online', 'Cloud Synced');
+}
+
+async function saveToCloud() {
+  const url = getGasUrl();
+  if (!url) {
+    updateSyncStatus('offline', 'Offline Mode');
+    return;
+  }
+
+  updateSyncStatus('syncing', 'Saving to cloud...');
+  try {
+    // Send full state to Google Apps Script
+    const payload = {
+      recipes: recipes,
+      customLabels: customLabels
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors', // Use no-cors to prevent CORS redirect errors; GAS executes script before redirect
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8' // GAS doPost handles text/plain best without CORS pre-flight triggers
+      },
+      body: JSON.stringify(payload)
+    });
+
+    // With mode no-cors, the response is opaque (status 0, ok is false)
+    // If it did not throw a network exception, the data was successfully transmitted to GAS!
+    updateSyncStatus('online', 'Cloud Synced');
+  } catch (error) {
+    console.error('Cloud Sync POST failed:', error);
+    updateSyncStatus('offline', 'Save Failed (Queued)');
+  }
+}
+
+function updateSyncStatus(status, text) {
+  const indicator = document.getElementById('sync-status');
+  const textEl = indicator.querySelector('.sync-text');
+  
+  indicator.className = 'sync-indicator ' + status;
+  textEl.textContent = text;
+}
+
+// --- Navigation ---
+function switchView(viewName, recipeId = null) {
+  currentView = viewName;
+  activeRecipeId = recipeId;
+  collapseAddTimerForm(); // Ensure timer creation form collapses on navigation
+
+  // Deactivate all screens
+  Object.values(screens).forEach(screen => {
+    screen.classList.remove('active');
+  });
+
+  // Activate target
+  if (viewName === 'list-screen') {
+    screens.list.classList.add('active');
+    renderRecipeList();
+    updateRecipeTimers(null);
+  } else if (viewName === 'view-screen') {
+    isCookingMode = false; // Default to informational view when loading a recipe
+    screens.view.classList.add('active');
+    renderRecipeDetail(recipeId);
+    const recipe = recipes.find(r => r.id === recipeId);
+    updateRecipeTimers(recipe);
+  } else if (viewName === 'edit-screen') {
+    screens.edit.classList.add('active');
+    initRecipeEditor(recipeId);
+    updateRecipeTimers(null);
+  } else if (viewName === 'settings-screen') {
+    screens.settings.classList.add('active');
+    initSettingsView();
+    updateRecipeTimers(null);
+  }
+}
+
+// --- Render Filter Tabs ---
+function renderFilters() {
+  const container = document.getElementById('labels-filter-container');
+  container.innerHTML = '';
+
+  const allLabels = ['All', ...DEFAULT_LABELS, ...customLabels];
+  
+  allLabels.forEach(label => {
+    const pill = document.createElement('div');
+    pill.className = `label-pill ${activeFilterLabel === label ? 'active' : ''}`;
+    pill.textContent = label;
+    pill.addEventListener('click', () => {
+      activeFilterLabel = label;
+      renderFilters();
+      renderRecipeList();
+    });
+    container.appendChild(pill);
+  });
+}
+
+// --- Render Recipe List (Sorting & Filtering) ---
+function renderRecipeList() {
+  const grid = document.getElementById('recipe-cards-grid');
+  const emptyState = document.getElementById('empty-state');
+  grid.innerHTML = '';
+
+  // 1. Filter
+  let filteredRecipes = recipes.filter(recipe => {
+    // Search filter
+    const matchesSearch = searchQuery === '' || 
+      recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      recipe.labels.some(lbl => lbl.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Label filter
+    const matchesLabel = activeFilterLabel === 'All' || recipe.labels.includes(activeFilterLabel);
+
+    return matchesSearch && matchesLabel;
+  });
+
+  // 2. Sort: Most Cooked (descending) first, Alphabetical (ascending) second
+  filteredRecipes.sort((a, b) => {
+    const cookA = a.cookCount || 0;
+    const cookB = b.cookCount || 0;
+    if (cookB !== cookA) {
+      return cookB - cookA; // Descending
+    }
+    return a.title.localeCompare(b.title); // Ascending alphabetical
+  });
+
+  // 3. Show/Hide Empty State
+  if (filteredRecipes.length === 0) {
+    grid.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    return;
+  } else {
+    grid.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+  }
+
+  // 4. Render Cards
+  filteredRecipes.forEach(recipe => {
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+    card.setAttribute('data-id', recipe.id);
+    
+    // Image element or fallback SVG
+    let imageHTML = '';
+    if (recipe.image) {
+      imageHTML = `<img src="${recipe.image}" alt="${recipe.title}" class="card-image" loading="lazy">`;
+    } else {
+      imageHTML = `
+        <div class="card-image-fallback">
+          <svg class="card-fallback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 18h12a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/>
+            <path d="M17 18a2.5 2.5 0 0 0 .5-4.5A5 5 0 1 0 6.5 13.5A2.5 2.5 0 0 0 7 18"/>
+          </svg>
+          <span style="font-family: var(--font-heading); font-size:14px; font-weight:600;">No Image</span>
+        </div>
+      `;
+    }
+
+    // Cooked Count Badge
+    const cookCount = recipe.cookCount || 0;
+    const cookBadgeHTML = cookCount > 0 ? 
+      `<div class="card-cook-badge" title="Cooked ${cookCount} times">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2A10 10 0 0 0 2 12v1a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-1A10 10 0 0 0 12 2Z"/>
+        </svg>
+        <span>${cookCount}x</span>
+       </div>` : '';
+
+    // Labels tags HTML
+    const labelsHTML = recipe.labels.slice(0, 3).map(lbl => 
+      `<span class="card-label-tag">${lbl}</span>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="card-image-container">
+        ${imageHTML}
+        ${cookBadgeHTML}
+      </div>
+      <div class="card-info">
+        <div class="card-labels">
+          ${labelsHTML}
+        </div>
+        <h3 class="card-title">${escapeHTML(recipe.title)}</h3>
+        <div class="card-stats">
+          <div class="stat-item">
+            <span class="stat-val">${recipe.calories ? recipe.calories : '—'}</span>
+            <span class="stat-lbl">Calories</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">${recipe.protein ? recipe.protein + 'g' : '—'}</span>
+            <span class="stat-lbl">Protein</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">${recipe.healthScore ? recipe.healthScore : '—'}</span>
+            <span class="stat-lbl">Health</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      initAudio();
+      switchView('view-screen', recipe.id);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+// --- Helper to parse step text and replace minutes with inline timer buttons ---
+function parseStepTimers(stepText, stepIndex) {
+  // Matches single durations or ranges (e.g., "15 minutes", "12-15 minutes", "12 to 15 minutes")
+  const regex = /\b(\d+)(?:\s*(?:-|to)\s*(\d+))?\s*(?:minute|min)s?\b/gi;
+  return stepText.replace(regex, (match, minStr, maxStr) => {
+    const minVal = parseInt(minStr);
+    const maxVal = maxStr ? parseInt(maxStr) : null;
+    const mins = maxVal ? maxVal : minVal; // Use the upper bound for the timer duration
+    
+    if (mins > 0 && mins <= 1440) {
+      return `<button type="button" class="step-timer-btn" data-mins="${mins}" data-step="${stepIndex}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0; flex-shrink: 0; display: inline-block; vertical-align: middle;">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>${match}</span>
+      </button>`;
+    }
+    return match;
+  });
+}
+
+// --- Render Recipe Detail Page ---
+function renderRecipeDetail(recipeId) {
+  const recipe = recipes.find(r => r.id === recipeId);
+  const container = document.getElementById('recipe-detail-content');
+  if (!recipe) {
+    container.innerHTML = '<p class="error-msg">Recipe not found.</p>';
+    return;
+  }
+
+  // Handle header action button visibility based on view mode
+  const editBtn = document.getElementById('view-edit-btn');
+  const deleteBtn = document.getElementById('view-delete-btn');
+  const exitCookingBtn = document.getElementById('exit-cooking-btn');
+  const completeCookingBtn = document.getElementById('complete-cooking-btn');
+  
+  if (isCookingMode) {
+    if (editBtn) editBtn.classList.add('hidden');
+    if (deleteBtn) deleteBtn.classList.add('hidden');
+    if (exitCookingBtn) exitCookingBtn.classList.remove('hidden');
+    if (completeCookingBtn) completeCookingBtn.classList.remove('hidden');
+  } else {
+    if (editBtn) editBtn.classList.remove('hidden');
+    if (deleteBtn) deleteBtn.classList.remove('hidden');
+    if (exitCookingBtn) exitCookingBtn.classList.add('hidden');
+    if (completeCookingBtn) completeCookingBtn.classList.add('hidden');
+  }
+
+  if (isCookingMode) {
+    // ----------------------------------------------------
+    // COOKING MODE VIEW (SIMPLIFIED & ACTIONABLE)
+    // ----------------------------------------------------
+    
+    // Ingredients Checklist HTML
+    const ingredientsHTML = recipe.ingredients.map((ing, index) => `
+      <li class="ingredient-check-item" data-index="${index}">
+        <input type="checkbox" class="ingredient-checkbox" id="ing-check-${index}">
+        <label for="ing-check-${index}" class="ingredient-text">${escapeHTML(ing)}</label>
+      </li>
+    `).join('');
+
+    // Directions Steps rendering (with checkbox inside step & inline smart timer buttons)
+    const stepsHTML = recipe.directions.map((stepText, index) => {
+      let parsedText = parseIngredientTags(stepText, recipe.ingredients);
+      parsedText = parseStepTimers(parsedText, index + 1);
+
+      return `
+        <div class="direction-step step-cooking-row">
+          <input type="checkbox" class="step-checkbox" id="step-check-${index}">
+          <label for="step-check-${index}" class="step-number-circle">${index + 1}</label>
+          <div class="step-instruction-text">
+            ${parsedText}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="cooking-header-banner">
+        <h2 class="cooking-title">${escapeHTML(recipe.title)}</h2>
+        ${recipe.tempType === 'oven' && recipe.tempValue ? `
+          <div class="cooking-oven-badge">
+            <svg class="cooking-oven-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+            </svg>
+            <span>Oven: <strong>${escapeHTML(recipe.tempValue)}</strong></span>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- Body contents -->
+      <div class="detail-body cooking-body">
+        <div class="detail-ingredients-column">
+          <h3>Ingredients Checklist</h3>
+          <ul class="ingredients-checklist">
+            ${ingredientsHTML}
+          </ul>
+        </div>
+        <div class="detail-directions-column">
+          <h3>Instructions Checklist</h3>
+          <div class="directions-list">
+            ${stepsHTML}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Click handler for step row checking/toggling
+    const stepRows = container.querySelectorAll('.step-cooking-row');
+    stepRows.forEach(row => {
+      row.addEventListener('click', (e) => {
+        // Prevent toggle if clicking on interactive elements
+        if (
+          e.target.tagName === 'A' || 
+          e.target.tagName === 'BUTTON' || 
+          e.target.closest('.step-timer-btn') ||
+          e.target.classList.contains('step-ingredient-link') || 
+          e.target.classList.contains('preset-btn') || 
+          e.target.classList.contains('recipe-timer-trigger')
+        ) {
+          return;
+        }
+
+        const cb = row.querySelector('.step-checkbox');
+        if (cb && e.target !== cb) {
+          cb.checked = !cb.checked;
+        }
+      });
+    });
+
+  } else {
+    // ----------------------------------------------------
+    // INFORMATIONAL MODE VIEW (FULL OVERVIEW)
+    // ----------------------------------------------------
+    
+    // Setup Title image
+    let heroHTML = '';
+    if (recipe.image) {
+      heroHTML = `<img src="${recipe.image}" alt="${recipe.title}" class="detail-hero-img">`;
+    } else {
+      heroHTML = `
+        <div class="card-image-fallback" style="height:100%;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="width: 80px; height: 80px; opacity:0.3;">
+            <path d="M6 18h12a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/>
+            <path d="M17 18a2.5 2.5 0 0 0 .5-4.5A5 5 0 1 0 6.5 13.5A2.5 2.5 0 0 0 7 18"/>
+          </svg>
+        </div>`;
+    }
+
+    // Label tags
+    const labelsHTML = recipe.labels.map(lbl => 
+      `<span class="detail-label-tag">${lbl}</span>`
+    ).join('');
+
+    // Oven Setting Banner Info
+    let tempBannerHTML = '';
+    if (recipe.tempType === 'oven' && recipe.tempValue) {
+      const iconSVG = `
+        <svg class="detail-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+        </svg>`;
+      
+      tempBannerHTML = `
+        <div class="detail-stat-box">
+          ${iconSVG}
+          <div class="detail-stat-info">
+            <span class="detail-stat-val">${escapeHTML(recipe.tempValue)}</span>
+            <span class="detail-stat-lbl">Oven Temperature</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Ingredients checklist HTML (no checkboxes, list bullets styled in css)
+    const ingredientsHTML = recipe.ingredients.map((ing, index) => `
+      <li class="ingredient-info-item" data-index="${index}">
+        <span class="ingredient-bullet">&bull;</span>
+        <span class="ingredient-text">${escapeHTML(ing)}</span>
+      </li>
+    `).join('');
+
+    // Directions Steps rendering
+    const stepsHTML = recipe.directions.map((stepText, index) => {
+      let parsedText = parseIngredientTags(stepText, recipe.ingredients);
+      parsedText = parseStepTimers(parsedText, index + 1);
+
+      return `
+        <div class="direction-step">
+          <div class="step-number-circle">${index + 1}</div>
+          <div class="step-instruction-text">
+            ${parsedText}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="detail-hero">
+        ${heroHTML}
+        <div class="detail-hero-overlay">
+          <div class="detail-labels">${labelsHTML}</div>
+          <h2 class="detail-title">${escapeHTML(recipe.title)}</h2>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="detail-stats-strip">
+        <div class="detail-stat-box">
+          <svg class="detail-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+          </svg>
+          <div class="detail-stat-info">
+            <span class="detail-stat-val">${recipe.calories ? recipe.calories + ' kcal' : '—'}</span>
+            <span class="detail-stat-lbl">Calories</span>
+          </div>
+        </div>
+
+        <div class="detail-stat-box">
+          <svg class="detail-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12.5" cy="8.5" r="2.5"/>
+            <path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/>
+            <path d="m18.5 6 2.19 3.42c3.6 5.61 2.59 9.28 2.22 10.45a1 1 0 0 1-1.41.6c-2.43-1.14-5.38-2.02-8.38-1.57a3.5 3.5 0 0 1-4.04-2.55L8.5 15"/>
+          </svg>
+          <div class="detail-stat-info">
+            <span class="detail-stat-val">${recipe.protein ? recipe.protein + ' g' : '—'}</span>
+            <span class="detail-stat-lbl">Protein</span>
+          </div>
+        </div>
+
+        <div class="detail-stat-box">
+          <svg class="detail-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <div class="detail-stat-info">
+            <span class="detail-stat-val">${recipe.healthScore ? recipe.healthScore + '/100' : '—'}</span>
+            <span class="detail-stat-lbl">Health Score</span>
+          </div>
+        </div>
+
+        ${tempBannerHTML}
+
+        <!-- Cook tracker & action -->
+        <div class="detail-cook-tracker">
+          <div class="cook-count-display" id="detail-cook-count-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary-color)">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Cooked: <strong id="cook-count-num">${recipe.cookCount || 0}</strong> times</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary" id="start-cooking-btn" style="background-color: var(--primary-color); border-color: var(--primary-color); display: flex; align-items: center; gap: 6px; padding: 0 16px; font-size: 15px; height: 42px;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin: 0;">
+                <path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589v-.01a4.015 4.015 0 0 0-3.327-1.996h-.532a4.015 4.015 0 0 0-3.327 1.996v.01A4 4 0 0 0 7.273 14.61c.411.197.727.584.727 1.041V20a1 1 0 0 0 1 1Z"/>
+                <path d="M6 17h12"/>
+              </svg>
+              Cook
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body contents -->
+      <div class="detail-body">
+        <div class="detail-ingredients-column">
+          <h3>Ingredients</h3>
+          <ul class="ingredients-checklist">
+            ${ingredientsHTML}
+          </ul>
+        </div>
+        <div class="detail-directions-column">
+          <h3>Cooking Instructions</h3>
+          <div class="directions-list">
+            ${stepsHTML}
+          </div>
+        </div>
+      </div>
+    `;
+
+
+
+    // 2. "Start Cooking" button trigger
+    const startCookingBtn = document.getElementById('start-cooking-btn');
+    if (startCookingBtn) {
+      startCookingBtn.addEventListener('click', () => {
+        isCookingMode = true;
+        renderRecipeDetail(recipeId);
+        
+        // Auto open timers panel
+        const sidebar = document.getElementById('timers-sidebar');
+        const mainContainer = document.querySelector('.main-container');
+        if (sidebar && mainContainer) {
+          sidebar.classList.add('open');
+          mainContainer.classList.add('timers-open');
+        }
+      });
+    }
+  }
+
+  // 3. Click ingredient tag in step -> Highlight list item on left side
+  const ingredientLinks = container.querySelectorAll('.step-ingredient-link');
+  ingredientLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const ingName = e.target.getAttribute('data-ingredient').toLowerCase().trim();
+      
+      // Find matching checklist item
+      const listItems = container.querySelectorAll('.ingredient-check-item, .ingredient-info-item');
+      listItems.forEach(item => {
+        const text = item.querySelector('.ingredient-text').textContent.toLowerCase();
+        
+        // Match substring or full name
+        if (text.includes(ingName)) {
+          // Highlight
+          item.classList.add('active-highlight');
+          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          
+          setTimeout(() => {
+            item.classList.remove('active-highlight');
+          }, 1800);
+        }
+      });
+    });
+  });
+
+  // 4. Click inline step timer buttons -> Setup timer and automatically open Step 2 in sidebar
+  const stepTimerBtns = container.querySelectorAll('.step-timer-btn');
+  stepTimerBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Stop click from toggling step row checkboxes
+      
+      const mins = parseInt(btn.getAttribute('data-mins'));
+      const stepNum = btn.getAttribute('data-step');
+      
+      initAudio();
+      
+      const totalSec = mins * 60;
+      const hr = Math.floor(totalSec / 3600);
+      const min = Math.floor((totalSec % 3600) / 60);
+      const sec = totalSec % 60;
+      
+      // Re-scroll picker wheels (will layout after sidebar opens)
+      setDurationPickerValues(hr, min, sec);
+      selectedTimerDuration = totalSec;
+      
+      // Clear timer label input to prevent autofilling any suggested label
+      const labelInput = document.getElementById('timer-label');
+      if (labelInput) {
+        labelInput.value = '';
+      }
+      
+      // Slide open timers sidebar
+      const sidebar = document.getElementById('timers-sidebar');
+      const mainContainer = document.querySelector('.main-container');
+      if (sidebar && mainContainer) {
+        sidebar.classList.add('open');
+        mainContainer.classList.add('timers-open');
+      }
+      
+      // Transition form directly to Step 2
+      showTimerStep2();
+    });
+  });
+}
+
+// Convert bracketed instructions [[Butter]] to HTML tags
+function parseIngredientTags(text, ingredientList) {
+  // Regex matches [[Ingredient Name]]
+  const regex = /\[\[(.*?)\]\]/g;
+  return text.replace(regex, (match, ingName) => {
+    return `<span class="step-ingredient-link" data-ingredient="${escapeHTML(ingName)}">${escapeHTML(ingName)}</span>`;
+  });
+}
+
+// --- Recipe Editor View ---
+function initRecipeEditor(recipeId) {
+  const isEditing = recipeId !== null;
+  const editorTitle = document.getElementById('editor-title-text');
+  const form = document.getElementById('recipe-form');
+  
+  // Clear previous preview
+  document.getElementById('image-preview').innerHTML = '<span class="preview-placeholder">No Image Selected</span>';
+  document.getElementById('recipe-image-file').value = '';
+
+  // Initialize editing target
+  let recipe = null;
+  if (isEditing) {
+    editorTitle.textContent = 'Edit Recipe';
+    recipe = recipes.find(r => r.id === recipeId);
+    
+    document.getElementById('recipe-title').value = recipe.title;
+    document.getElementById('recipe-calories').value = recipe.calories || '';
+    document.getElementById('recipe-protein').value = recipe.protein || '';
+    document.getElementById('recipe-health').value = recipe.healthScore || '';
+    const hasOven = recipe.tempType === 'oven';
+    document.getElementById('recipe-needs-oven').checked = hasOven;
+    document.getElementById('recipe-temp-value').value = recipe.tempValue || '';
+    
+    if (recipe.image) {
+      document.getElementById('image-preview').innerHTML = `<img src="${recipe.image}" class="image-preview-img">`;
+    }
+    
+    editorIngredients = [...recipe.ingredients];
+    
+    // Load steps into inputs
+    const stepsContainer = document.getElementById('steps-editor-list');
+    stepsContainer.innerHTML = '';
+    recipe.directions.forEach((step, idx) => {
+      addStepInput(step, idx + 1);
+    });
+  } else {
+    editorTitle.textContent = 'Create Recipe';
+    form.reset();
+    document.getElementById('recipe-needs-oven').checked = false;
+    
+    editorIngredients = [];
+    
+    // Start with 1 empty step
+    const stepsContainer = document.getElementById('steps-editor-list');
+    stepsContainer.innerHTML = '';
+    addStepInput('', 1);
+  }
+
+  // Update lists
+  renderEditorIngredientsList();
+  renderEditorLabels(recipe ? recipe.labels : []);
+  toggleTempValueGroup();
+}
+
+function renderEditorLabels(selectedLabels = []) {
+  const container = document.getElementById('editor-labels-container');
+  container.innerHTML = '';
+
+  const allLabels = [...DEFAULT_LABELS, ...customLabels];
+  
+  allLabels.forEach(label => {
+    const labelId = `editor-lbl-${label.replace(/\s+/g, '-').toLowerCase()}`;
+    const wrapper = document.createElement('label');
+    wrapper.className = 'editor-label-checkbox-label';
+    wrapper.setAttribute('for', labelId);
+    
+    const isChecked = selectedLabels.includes(label);
+    wrapper.innerHTML = `
+      <input type="checkbox" id="${labelId}" value="${label}" ${isChecked ? 'checked' : ''}>
+      <span>${label}</span>
+    `;
+    container.appendChild(wrapper);
+  });
+}
+
+function toggleTempValueGroup() {
+  const needsOven = document.getElementById('recipe-needs-oven').checked;
+  const valueGroup = document.getElementById('temp-value-group');
+  const input = document.getElementById('recipe-temp-value');
+  const card = document.querySelector('.checkbox-card');
+  const row = card ? card.closest('.form-row') : null;
+
+  if (needsOven) {
+    if (valueGroup) valueGroup.style.display = 'flex';
+    if (input) input.setAttribute('required', 'true');
+    if (row) row.style.gridTemplateColumns = '1.2fr 1fr';
+  } else {
+    if (valueGroup) valueGroup.style.display = 'none';
+    if (input) {
+      input.removeAttribute('required');
+      input.value = ''; // Clear if unchecked
+    }
+    if (row) row.style.gridTemplateColumns = '1fr';
+  }
+}
+
+// Ingredients logic inside editor
+function addIngredientFromEditor() {
+  const input = document.getElementById('new-ingredient-input');
+  const text = input.value.trim();
+  if (text) {
+    if (!editorIngredients.includes(text)) {
+      editorIngredients.push(text);
+      renderEditorIngredientsList();
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+function renderEditorIngredientsList() {
+  const ul = document.getElementById('editor-ingredients-list-ul');
+  ul.innerHTML = '';
+
+  if (editorIngredients.length === 0) {
+    ul.innerHTML = '<li class="timers-empty-msg" style="padding: 10px 0; text-align: center;">No ingredients added yet.</li>';
+    return;
+  }
+
+  editorIngredients.forEach((ing, index) => {
+    const li = document.createElement('li');
+    li.className = 'editor-ingredient-card';
+    li.setAttribute('data-index', index);
+    li.title = 'Click to insert into instructions';
+    li.innerHTML = `
+      <span>${escapeHTML(ing)}</span>
+      <button type="button" class="remove-chip-btn" title="Remove Ingredient">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    `;
+    
+    // Clicking the card body inserts it. Clicking the remove button deletes it.
+    li.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('.remove-chip-btn');
+      if (removeBtn) {
+        e.stopPropagation();
+        const idx = parseInt(li.getAttribute('data-index'));
+        editorIngredients.splice(idx, 1);
+        renderEditorIngredientsList();
+      } else {
+        insertIngredientTokenInDirection(ing);
+      }
+    });
+
+    ul.appendChild(li);
+  });
+}
+function addStepInput(text = '', index = null) {
+  const container = document.getElementById('steps-editor-list');
+  const stepCount = index || container.querySelectorAll('.step-edit-card').length + 1;
+  
+  const stepCard = document.createElement('div');
+  stepCard.className = 'step-edit-card';
+  stepCard.innerHTML = `
+    <div class="step-edit-num">${stepCount}</div>
+    <div class="step-editor-body" style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+      <div class="step-input-editor" contenteditable="true" placeholder=""></div>
+    </div>
+    <button type="button" class="remove-step-btn" title="Remove Step" style="align-self: flex-start; margin-top: 10px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    </button>
+  `;
+
+  const editor = stepCard.querySelector('.step-input-editor');
+  
+  // Set initial content as HTML
+  editor.innerHTML = deserializeTextToHTML(text);
+
+  // Monitor typing for bracket tags like [[Butter]] and auto convert
+  editor.addEventListener('input', () => {
+    // If they just typed a closing bracket, convert
+    const textContent = editor.innerText;
+    if (textContent.includes(']]')) {
+      const selectionState = saveSelection(editor);
+      const rawText = convertPillsHTMLToText(editor);
+      const newHTML = deserializeTextToHTML(rawText);
+      
+      if (editor.innerHTML !== newHTML) {
+        editor.innerHTML = newHTML;
+        restoreSelection(editor, selectionState);
+      }
+    }
+  });
+
+  // Cleanup helper to empty editor when text is completely cleared
+  const cleanIfEmpty = () => {
+    const textContent = editor.innerText.trim();
+    if (!textContent) {
+      editor.innerHTML = '';
+    }
+  };
+
+  editor.addEventListener('input', cleanIfEmpty);
+  editor.addEventListener('blur', () => {
+    cleanIfEmpty();
+    const rawText = convertPillsHTMLToText(editor);
+    const newHTML = deserializeTextToHTML(rawText);
+    if (editor.innerHTML !== newHTML) {
+      editor.innerHTML = newHTML;
+    }
+  });
+
+  // Track caret position and selection changes dynamically
+  const saveCurrentEditorSelection = () => {
+    savedEditorSelection = saveSelection(editor);
+    lastActiveEditor = editor;
+  };
+  editor.addEventListener('keyup', saveCurrentEditorSelection);
+  editor.addEventListener('mouseup', saveCurrentEditorSelection);
+  editor.addEventListener('click', saveCurrentEditorSelection);
+
+  // Track active editor
+  editor.addEventListener('focus', () => {
+    activeStepEditor = editor;
+    lastActiveEditor = editor;
+    saveCurrentEditorSelection();
+  });
+
+  // Remove step handler
+  stepCard.querySelector('.remove-step-btn').addEventListener('click', () => {
+    stepCard.remove();
+    reindexSteps();
+  });
+
+  container.appendChild(stepCard);
+  reindexSteps();
+}
+
+function reindexSteps() {
+  const container = document.getElementById('steps-editor-list');
+  const cards = container.querySelectorAll('.step-edit-card');
+  cards.forEach((card, idx) => {
+    card.querySelector('.step-edit-num').textContent = idx + 1;
+    const editor = card.querySelector('.step-input-editor');
+    if (editor) {
+      editor.setAttribute('placeholder', '');
+    }
+  });
+}
+
+function insertIngredientTokenInDirection(ingName) {
+  // If no editor has focus, target the last active/focused one
+  const targetEditor = activeStepEditor || lastActiveEditor;
+  if (!targetEditor) {
+    const list = document.getElementById('steps-editor-list').querySelectorAll('.step-input-editor');
+    if (list.length > 0) {
+      activeStepEditor = list[list.length - 1];
+    }
+  } else {
+    activeStepEditor = targetEditor;
+  }
+
+  if (activeStepEditor) {
+    const selectionToRestore = savedEditorSelection; // Cache selection before focusing, as focus events trigger overwrite
+    activeStepEditor.focus();
+    if (selectionToRestore) {
+      restoreSelection(activeStepEditor, selectionToRestore);
+    }
+    const pillHTML = `<span class="editor-step-pill" contenteditable="false" data-ingredient="${escapeHTML(ingName)}">${escapeHTML(ingName)}</span>&nbsp;`;
+    insertHTMLAtCaret(pillHTML);
+    
+    // Save selection at new cursor position so subsequent clicks work
+    savedEditorSelection = saveSelection(activeStepEditor);
+    
+    activeStepEditor.dispatchEvent(new Event('input'));
+  }
+}
+
+// Compress uploaded file to base64 for cloud database - redirects to Crop Modal
+function handleImageUpload(file) {
+  if (!file) return;
+  openCropperModal(file);
+}
+
+// Save Recipe Form
+function saveRecipe() {
+  const title = document.getElementById('recipe-title').value.trim();
+  if (!title) {
+    alert('Please enter a Recipe Title.');
+    return;
+  }
+
+  if (editorIngredients.length === 0) {
+    alert('Please add at least one ingredient.');
+    return;
+  }
+
+  // Get steps
+  const stepsList = [];
+  const editors = document.getElementById('steps-editor-list').querySelectorAll('.step-input-editor');
+  editors.forEach(editor => {
+    const txt = convertPillsHTMLToText(editor).trim();
+    if (txt) stepsList.push(txt);
+  });
+
+  if (stepsList.length === 0) {
+    alert('Please write at least one instruction step.');
+    return;
+  }
+
+  // Organize ingredients based on their order of appearance in steps
+  const normalizedEditorIngs = editorIngredients.map(ing => ing.toLowerCase().trim());
+  const orderedReferenced = [];
+  const regex = /\[\[(.*?)\]\]/g;
+  
+  stepsList.forEach(step => {
+    let match;
+    regex.lastIndex = 0;
+    while ((match = regex.exec(step)) !== null) {
+      const refName = match[1].trim();
+      if (refName) {
+        const refNameLower = refName.toLowerCase();
+        const originalIndex = normalizedEditorIngs.indexOf(refNameLower);
+        if (originalIndex !== -1) {
+          const originalIng = editorIngredients[originalIndex];
+          if (!orderedReferenced.includes(originalIng)) {
+            orderedReferenced.push(originalIng);
+          }
+        }
+      }
+    }
+  });
+
+  const unreferenced = editorIngredients.filter(ing => !orderedReferenced.includes(ing));
+
+  if (unreferenced.length > 0) {
+    const confirmMsg = `The following ingredients are in your list but never referenced in the directions:\n\n` + 
+      unreferenced.map(ing => `• ${ing}`).join('\n') + 
+      `\n\nWould you like to save anyway? (These unreferenced ingredients will be moved to the bottom of the ingredients list.)`;
+    
+    if (!confirm(confirmMsg)) {
+      return; // Abort save
+    }
+  }
+
+  // Set the final ingredients list ordered: referenced first, then unreferenced
+  editorIngredients = [...orderedReferenced, ...unreferenced];
+
+  // Gather labels
+  const selectedLabels = [];
+  const checkboxes = document.getElementById('editor-labels-container').querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    if (cb.checked) selectedLabels.push(cb.value);
+  });
+
+  // Image source logic
+  let imageSource = '';
+  const previewDiv = document.getElementById('image-preview');
+  const base64Val = previewDiv.getAttribute('data-base64');
+  
+  if (base64Val) {
+    imageSource = base64Val;
+  } else if (previewDiv.querySelector('img')) {
+    imageSource = previewDiv.querySelector('img').src; // editing loaded
+  }
+
+  const recipeData = {
+    id: activeRecipeId || generateUUID(),
+    title: title,
+    calories: parseInt(document.getElementById('recipe-calories').value) || null,
+    protein: parseInt(document.getElementById('recipe-protein').value) || null,
+    healthScore: parseInt(document.getElementById('recipe-health').value) || null,
+    tempType: document.getElementById('recipe-needs-oven').checked ? 'oven' : 'none',
+    tempValue: document.getElementById('recipe-needs-oven').checked ? document.getElementById('recipe-temp-value').value.trim() : '',
+    labels: selectedLabels,
+    image: imageSource,
+    ingredients: editorIngredients,
+    directions: stepsList,
+    cookCount: activeRecipeId ? (recipes.find(r => r.id === activeRecipeId).cookCount || 0) : 0,
+    createdAt: activeRecipeId ? (recipes.find(r => r.id === activeRecipeId).createdAt || Date.now()) : Date.now()
+  };
+
+  if (activeRecipeId) {
+    // Update
+    const idx = recipes.findIndex(r => r.id === activeRecipeId);
+    recipes[idx] = recipeData;
+  } else {
+    // Insert
+    recipes.push(recipeData);
+  }
+
+  saveRecipesToLocal();
+  saveToCloud();
+
+  // Redirect to Detail View
+  switchView('view-screen', recipeData.id);
+}
+
+function deleteRecipe(recipeId) {
+  if (confirm('Are you sure you want to delete this recipe?')) {
+    recipes = recipes.filter(r => r.id !== recipeId);
+    saveRecipesToLocal();
+    saveToCloud();
+    switchView('list-screen');
+  }
+}
+
+// --- Settings Screen & Cloud Settings ---
+function initSettingsView() {
+  document.getElementById('settings-gas-url').value = getGasUrl();
+}
+
+function saveSettings() {
+  const url = document.getElementById('settings-gas-url').value.trim();
+  setGasUrl(url);
+  
+  if (url) {
+    updateSyncStatus('syncing', 'Syncing with cloud...');
+    fetchFromCloud();
+  } else {
+    updateSyncStatus('offline', 'Offline Mode');
+  }
+  
+  alert('Settings saved successfully!');
+}
+
+function forceSync() {
+  const url = getGasUrl();
+  if (!url) {
+    alert('Please configure a Google Apps Script URL in settings first.');
+    return;
+  }
+  if (!url.endsWith('/exec') && !url.includes('/exec?')) {
+    alert('Invalid Web App URL! Your URL must end in "/exec". Please make sure you copied the "Web App" deployment URL, not the script editor URL.');
+    return;
+  }
+
+  fetchFromCloud().then(() => {
+    saveToCloud();
+  }).catch((err) => {
+    console.error('Sync aborted because fetch failed.', err);
+    alert('Sync Failed! Error details:\n\n' + err.message + '\n\nTroubleshooting:\n1. Ensure you deployed as "Web app".\n2. "Execute as" must be "Me".\n3. "Who has access" must be "Anyone" (not "Anyone with Google Account").');
+  });
+}
+
+function exportJSON() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ recipes, customLabels }));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `myrecipe_backup_${new Date().toISOString().slice(0,10)}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function handleJSONImport(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.recipes && Array.isArray(data.recipes)) {
+        if (confirm(`Found ${data.recipes.length} recipes in file. Overwrite current local library?`)) {
+          recipes = data.recipes;
+          if (data.customLabels && Array.isArray(data.customLabels)) {
+            customLabels = data.customLabels;
+          }
+          saveRecipesToLocal();
+          saveLabelsToLocal();
+          saveToCloud();
+          renderFilters();
+          alert('Data imported successfully!');
+          switchView('list-screen');
+        }
+      } else {
+        alert('Invalid backup format. Missing recipe database.');
+      }
+    } catch (err) {
+      alert('Error reading JSON backup: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAllData() {
+  if (confirm('CRITICAL WARNING: This will delete ALL recipes and settings permanently from this browser. Are you absolutely sure?')) {
+    localStorage.clear();
+    recipes = getSeedRecipes();
+    customLabels = [];
+    saveRecipesToLocal();
+    saveLabelsToLocal();
+    renderFilters();
+    renderRecipeList();
+    switchView('list-screen');
+    alert('Browser data reset to default seed recipes.');
+  }
+}
+
+// --- Timer Engine System ---
+function startTimerEngine() {
+  if (timerInterval) clearInterval(timerInterval);
+  
+  timerInterval = setInterval(() => {
+    let updateNeeded = false;
+    let alarmTriggered = false;
+
+    timers.forEach(timer => {
+      if (timer.status === 'running') {
+        timer.remainingSeconds--;
+        updateNeeded = true;
+
+        if (timer.remainingSeconds <= 0) {
+          timer.status = 'ringing';
+          timer.remainingSeconds = 0;
+          alarmTriggered = true;
+          triggerWebAlarm(timer.id);
+        }
+      }
+    });
+
+    if (updateNeeded || alarmTriggered) {
+      saveTimersToLocal();
+      renderActiveTimers();
+      updateTimerBadge();
+    }
+  }, 1000);
+}
+
+function updateTimerBadge() {
+  const activeCount = timers.filter(t => t.status === 'running' || t.status === 'ringing').length;
+  const badge = document.getElementById('active-timers-badge');
+  badge.textContent = activeCount;
+  if (activeCount > 0) {
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function createTimer() {
+  initAudio();
+  const labelInput = document.getElementById('timer-label');
+  const totalSec = selectedTimerDuration;
+
+  if (totalSec <= 0) {
+    alert('Please select a duration greater than 0.');
+    showTimerStep1();
+    return;
+  }
+
+  const label = labelInput.value.trim() || `Timer ${timers.length + 1}`;
+  
+  const newTimer = {
+    id: generateUUID(),
+    label: label,
+    totalSeconds: totalSec,
+    remainingSeconds: totalSec,
+    status: 'running'
+  };
+
+  timers.push(newTimer);
+  saveTimersToLocal();
+  renderActiveTimers();
+  updateTimerBadge();
+
+  // Reset Picker inputs to default 5m
+  labelInput.value = '';
+  setDurationPickerValues(0, 5, 0);
+  collapseAddTimerForm(); // Auto collapse form when timer is started
+}
+
+function showTimerStep1() {
+  const stepTime = document.getElementById('timer-step-time');
+  const stepLabel = document.getElementById('timer-step-label');
+  const card = document.querySelector('.add-timer-card');
+  if (stepTime && stepLabel) {
+    stepTime.classList.remove('hidden');
+    stepLabel.classList.add('hidden');
+  }
+  if (card) {
+    card.classList.remove('step2-active');
+  }
+  
+  // Restore wheel scroll values now that Step 1 is visible
+  if (selectedTimerDuration > 0) {
+    const hr = Math.floor(selectedTimerDuration / 3600);
+    const min = Math.floor((selectedTimerDuration % 3600) / 60);
+    const sec = selectedTimerDuration % 60;
+    setTimeout(() => {
+      setDurationPickerValues(hr, min, sec);
+    }, 50);
+  }
+}
+
+function showTimerStep2() {
+  const stepTime = document.getElementById('timer-step-time');
+  const stepLabel = document.getElementById('timer-step-label');
+  const card = document.querySelector('.add-timer-card');
+  if (stepTime && stepLabel) {
+    stepTime.classList.add('hidden');
+    stepLabel.classList.remove('hidden');
+    // Autofocus input to trigger keyboard
+    const labelInput = document.getElementById('timer-label');
+    if (labelInput) {
+      setTimeout(() => {
+        labelInput.focus();
+        labelInput.select();
+      }, 50);
+    }
+  }
+  if (card) {
+    card.classList.add('step2-active');
+    card.classList.remove('hidden'); // Ensure card is visible when entering Step 2 directly
+  }
+}
+
+function toggleAddTimerForm() {
+  const form = document.querySelector('.add-timer-card');
+  if (!form) return;
+  
+  const isHidden = form.classList.contains('hidden');
+  if (isHidden) {
+    form.classList.remove('hidden');
+    showTimerStep1();
+    document.getElementById('timer-label').value = '';
+    // Re-set scroll positions to default 5m now that container is visible and has layout!
+    setDurationPickerValues(0, 5, 0);
+  } else {
+    form.classList.add('hidden');
+  }
+}
+
+function collapseAddTimerForm() {
+  const form = document.querySelector('.add-timer-card');
+  if (form && !form.classList.contains('hidden')) {
+    form.classList.add('hidden');
+  }
+  selectedTimerDuration = 0; // Reset selected duration when collapsed
+  showTimerStep1();
+}
+
+function renderActiveTimers() {
+  const container = document.getElementById('active-timers-list');
+  container.innerHTML = '';
+
+  if (timers.length === 0) {
+    container.innerHTML = '<p class="timers-empty-msg">No active timers.</p>';
+    return;
+  }
+
+  timers.forEach(timer => {
+    const card = document.createElement('div');
+    const isRinging = timer.status === 'ringing';
+    card.className = `active-timer-card ${isRinging ? 'ringing' : ''}`;
+    card.setAttribute('data-id', timer.id);
+
+    const progressPercent = (timer.remainingSeconds / timer.totalSeconds) * 100;
+    const progressStyle = `style="width: ${progressPercent}%;"`;
+
+    let actionButtonsHTML = '';
+    if (isRinging) {
+      actionButtonsHTML = `
+        <button class="ringing-dismiss-btn" data-id="${timer.id}">Dismiss Alarm</button>
+      `;
+    } else {
+      const isRunning = timer.status === 'running';
+      const playPauseSVG = isRunning ? 
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>` : // Pause
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>`; // Play
+
+      actionButtonsHTML = `
+        <div class="timer-card-controls">
+          <button class="timer-ctrl-btn toggle-timer-play" data-id="${timer.id}" title="${isRunning ? 'Pause' : 'Resume'}">
+            ${playPauseSVG}
+          </button>
+          <button class="timer-ctrl-btn reset-timer" data-id="${timer.id}" title="Reset Duration">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </button>
+          <button class="timer-ctrl-btn btn-danger-hover delete-timer" data-id="${timer.id}" title="Delete Timer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="timer-card-meta">
+        <span class="timer-card-label">${escapeHTML(timer.label)}</span>
+        <span class="timer-card-time">${formatTimeStr(timer.remainingSeconds)}</span>
+      </div>
+      <div class="timer-progress-container">
+        <div class="timer-progress-bar" ${progressStyle}></div>
+      </div>
+      ${actionButtonsHTML}
+    `;
+
+    // Connect control actions
+    if (isRinging) {
+      card.querySelector('.ringing-dismiss-btn').addEventListener('click', (e) => {
+        const id = e.target.getAttribute('data-id');
+        dismissTimerAlarm(id);
+      });
+    } else {
+      card.querySelector('.toggle-timer-play').addEventListener('click', () => {
+        toggleTimerPlay(timer.id);
+      });
+      card.querySelector('.reset-timer').addEventListener('click', () => {
+        resetTimer(timer.id);
+      });
+      card.querySelector('.delete-timer').addEventListener('click', () => {
+        deleteTimer(timer.id);
+      });
+    }
+
+    container.appendChild(card);
+  });
+}
+
+function toggleTimerPlay(timerId) {
+  const timer = timers.find(t => t.id === timerId);
+  if (timer) {
+    timer.status = timer.status === 'running' ? 'paused' : 'running';
+    saveTimersToLocal();
+    renderActiveTimers();
+  }
+}
+
+function resetTimer(timerId) {
+  const timer = timers.find(t => t.id === timerId);
+  if (timer) {
+    timer.remainingSeconds = timer.totalSeconds;
+    timer.status = 'paused';
+    saveTimersToLocal();
+    renderActiveTimers();
+  }
+}
+
+function deleteTimer(timerId) {
+  timers = timers.filter(t => t.id !== timerId);
+  dismissTimerAlarm(timerId); // ensure audio drops
+  saveTimersToLocal();
+  renderActiveTimers();
+  updateTimerBadge();
+}
+
+function dismissTimerAlarm(timerId) {
+  // Stop synthesiser chimes loop
+  if (activeAlarms[timerId]) {
+    clearInterval(activeAlarms[timerId].intervalId);
+    delete activeAlarms[timerId];
+  }
+  
+  // Remove timer object entirely
+  timers = timers.filter(t => t.id !== timerId);
+  saveTimersToLocal();
+  renderActiveTimers();
+  updateTimerBadge();
+}
+
+// Synthesise alarm chime with Web Audio API (Modern chord chime!)
+function triggerWebAlarm(timerId) {
+  initAudio();
+  if (!audioCtx) return;
+
+  // Prevent multiple alarm loop schedules for same timer
+  if (activeAlarms[timerId]) return;
+
+  function playChimeBlock() {
+    if (!audioCtx || audioCtx.state === 'suspended') return;
+
+    const now = audioCtx.currentTime;
+    
+    // Modern melodic chime sequence: A5 note, then E6 note, beautiful decaying tone
+    const notes = [
+      { freq: 880.00, timeOffset: 0 },    // A5
+      { freq: 1318.51, timeOffset: 0.15 }, // E6
+      { freq: 880.00, timeOffset: 0.4 },    // A5
+      { freq: 1318.51, timeOffset: 0.55 }  // E6
+    ];
+
+    notes.forEach(n => {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      osc.type = 'triangle'; // Soft bells sound
+      osc.frequency.setValueAtTime(n.freq, now + n.timeOffset);
+      
+      // Bell envelope
+      gainNode.gain.setValueAtTime(0, now + n.timeOffset);
+      gainNode.gain.linearRampToValueAtTime(0.3, now + n.timeOffset + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + n.timeOffset + 0.65);
+      
+      osc.start(now + n.timeOffset);
+      osc.stop(now + n.timeOffset + 0.7);
+    });
+  }
+
+  // Play immediately once
+  playChimeBlock();
+
+  // Set recurring alarm chime block loop every 2 seconds
+  const intervalId = setInterval(playChimeBlock, 2200);
+  activeAlarms[timerId] = { intervalId };
+}
+
+// --- Event Listeners Bindings ---
+function setupEventListeners() {
+  // Navigation / Header
+  document.getElementById('header-logo-btn').addEventListener('click', () => {
+    switchView('list-screen');
+  });
+
+  const sidebar = document.getElementById('timers-sidebar');
+  const container = document.querySelector('.main-container');
+
+  document.getElementById('toggle-timers-btn').addEventListener('click', () => {
+    initAudio();
+    sidebar.classList.toggle('open');
+    container.classList.toggle('timers-open');
+  });
+
+  document.getElementById('close-timers-btn').addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    container.classList.remove('timers-open');
+  });
+
+  document.getElementById('toggle-settings-btn').addEventListener('click', () => {
+    if (currentView === 'settings-screen') {
+      switchView('list-screen');
+    } else {
+      switchView('settings-screen');
+    }
+  });
+
+  document.getElementById('settings-close-btn').addEventListener('click', () => {
+    switchView('list-screen');
+  });
+
+  // List View Controls
+  document.getElementById('new-recipe-btn').addEventListener('click', () => {
+    switchView('edit-screen');
+  });
+  document.getElementById('empty-add-btn').addEventListener('click', () => {
+    switchView('edit-screen');
+  });
+
+  // Search input with debounce / immediate trigger
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderRecipeList();
+  });
+
+  // Custom Label Prompt Modal trigger
+  document.getElementById('add-label-btn').addEventListener('click', () => {
+    document.getElementById('custom-label-modal').classList.remove('hidden');
+    document.getElementById('custom-label-input').focus();
+  });
+  document.getElementById('custom-label-cancel').addEventListener('click', () => {
+    document.getElementById('custom-label-modal').classList.add('hidden');
+    document.getElementById('custom-label-input').value = '';
+  });
+  document.getElementById('custom-label-confirm').addEventListener('click', () => {
+    const input = document.getElementById('custom-label-input');
+    const name = input.value.trim();
+    if (name) {
+      const formatted = name.charAt(0).toUpperCase() + name.slice(1);
+      if (!DEFAULT_LABELS.includes(formatted) && !customLabels.includes(formatted)) {
+        customLabels.push(formatted);
+        saveLabelsToLocal();
+        saveToCloud();
+        renderFilters();
+      }
+      input.value = '';
+      document.getElementById('custom-label-modal').classList.add('hidden');
+    }
+  });
+
+  // Recipe View Screen Controls
+  document.getElementById('view-back-btn').addEventListener('click', () => {
+    if (isCookingMode) {
+      isCookingMode = false;
+      renderRecipeDetail(activeRecipeId);
+    } else {
+      switchView('list-screen');
+    }
+  });
+  document.getElementById('view-edit-btn').addEventListener('click', () => {
+    switchView('edit-screen', activeRecipeId);
+  });
+  document.getElementById('view-delete-btn').addEventListener('click', () => {
+    deleteRecipe(activeRecipeId);
+  });
+
+  // Recipe Editor screen Controls
+  document.getElementById('edit-cancel-btn').addEventListener('click', () => {
+    if (activeRecipeId) {
+      switchView('view-screen', activeRecipeId);
+    } else {
+      switchView('list-screen');
+    }
+  });
+  document.getElementById('edit-save-btn').addEventListener('click', () => {
+    saveRecipe();
+  });
+
+  // Temp switch triggers
+  document.getElementById('recipe-needs-oven').addEventListener('change', () => {
+    toggleTempValueGroup();
+  });
+
+  // Ingredients text inputs
+  document.getElementById('add-ingredient-btn').addEventListener('click', addIngredientFromEditor);
+  document.getElementById('new-ingredient-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addIngredientFromEditor();
+    }
+  });
+
+  // Steps Add button
+  document.getElementById('add-step-btn').addEventListener('click', () => {
+    addStepInput('', null);
+  });
+
+  // File Upload Logic
+  const fileInput = document.getElementById('recipe-image-file');
+  const uploadTrigger = document.getElementById('upload-file-trigger');
+  uploadTrigger.addEventListener('click', () => {
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleImageUpload(e.target.files[0]);
+    }
+  });
+
+
+
+  // Settings Actions
+  document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+  document.getElementById('sync-now-btn').addEventListener('click', forceSync);
+  document.getElementById('export-data-btn').addEventListener('click', exportJSON);
+  
+  const importInput = document.getElementById('import-data-file');
+  document.getElementById('import-data-trigger').addEventListener('click', () => {
+    importInput.click();
+  });
+  importInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleJSONImport(e.target.files[0]);
+    }
+  });
+
+  document.getElementById('reset-data-btn').addEventListener('click', resetAllData);
+
+  // Timers actions
+  document.getElementById('start-timer-btn').addEventListener('click', createTimer);
+  document.getElementById('toggle-add-timer-btn').addEventListener('click', toggleAddTimerForm);
+  document.getElementById('cancel-timer-step1-btn').addEventListener('click', collapseAddTimerForm);
+  document.getElementById('back-timer-step-btn').addEventListener('click', showTimerStep1);
+  
+  document.getElementById('next-timer-step-btn').addEventListener('click', () => {
+    const { hr, min, sec } = getDurationPickerValues();
+    const totalSec = (hr * 3600) + (min * 60) + sec;
+    if (totalSec <= 0) {
+      alert('Please select a duration greater than 0.');
+      return;
+    }
+    selectedTimerDuration = totalSec; // Save duration before transitioning
+    showTimerStep2();
+  });
+
+  document.getElementById('timer-label').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      createTimer();
+    }
+  });
+
+  document.getElementById('exit-cooking-btn').addEventListener('click', () => {
+    isCookingMode = false;
+    renderRecipeDetail(activeRecipeId);
+  });
+
+  document.getElementById('complete-cooking-btn').addEventListener('click', () => {
+    const recipe = recipes.find(r => r.id === activeRecipeId);
+    if (recipe) {
+      recipe.cookCount = (recipe.cookCount || 0) + 1;
+      saveRecipesToLocal();
+      saveToCloud();
+      
+      isCookingMode = false;
+      renderRecipeDetail(activeRecipeId);
+      
+      // Animate badge
+      const badge = document.getElementById('detail-cook-count-badge');
+      if (badge) {
+        badge.classList.remove('cooked-pulse');
+        void badge.offsetWidth; // Trigger reflow
+        badge.classList.add('cooked-pulse');
+      }
+    }
+  });
+  
+  // Preset Controls
+  document.getElementById('edit-presets-btn').addEventListener('click', openPresetsEditor);
+  document.getElementById('cancel-presets-btn').addEventListener('click', closePresetsEditor);
+  document.getElementById('save-presets-btn').addEventListener('click', savePresetsFromEditor);
+}
+
+// --- Utility Functions ---
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+}
+
+// --- Selection & Formatting Helpers for ContentEditable Step Editors ---
+function saveSelection(containerEl) {
+  const sel = window.getSelection();
+  if (sel.rangeCount === 0) return null;
+  try {
+    const range = sel.getRangeAt(0);
+    const preSelectionRange = range.cloneRange();
+    preSelectionRange.selectNodeContents(containerEl);
+    preSelectionRange.setEnd(range.startContainer, range.startOffset);
+    const start = preSelectionRange.toString().length;
+
+    return {
+      start: start,
+      end: start + range.toString().length
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function restoreSelection(containerEl, savedSel) {
+  if (!savedSel) return;
+  const sel = window.getSelection();
+  let charIndex = 0;
+  const range = document.createRange();
+  range.setStart(containerEl, 0);
+  range.collapse(true);
+  
+  const nodeStack = [containerEl];
+  let node;
+  let foundStart = false;
+  let stop = false;
+
+  while (!stop && (node = nodeStack.pop())) {
+    if (node.nodeType === 3) {
+      const nextCharIndex = charIndex + node.length;
+      if (!foundStart && savedSel.start >= charIndex && savedSel.start <= nextCharIndex) {
+        range.setStart(node, savedSel.start - charIndex);
+        foundStart = true;
+      }
+      if (foundStart && savedSel.end >= charIndex && savedSel.end <= nextCharIndex) {
+        range.setEnd(node, savedSel.end - charIndex);
+        stop = true;
+      }
+      charIndex = nextCharIndex;
+    } else {
+      let i = node.childNodes.length;
+      while (i--) {
+        nodeStack.push(node.childNodes[i]);
+      }
+    }
+  }
+
+  try {
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } catch (e) {
+    console.error("Error restoring selection:", e);
+  }
+}
+
+function insertHTMLAtCaret(html) {
+  const sel = window.getSelection();
+  if (sel.getRangeAt && sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    
+    const el = document.createElement("div");
+    el.innerHTML = html;
+    const frag = document.createDocumentFragment();
+    let node, lastNode;
+    while ((node = el.firstChild)) {
+      lastNode = frag.appendChild(node);
+    }
+    range.insertNode(frag);
+    
+    if (lastNode) {
+      const newRange = range.cloneRange();
+      newRange.setStartAfter(lastNode);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    }
+  } else if (activeStepEditor) {
+    activeStepEditor.innerHTML += html;
+  }
+}
+
+function convertPillsHTMLToText(element) {
+  const clone = element.cloneNode(true);
+  
+  // Find all editor step pills
+  const pills = clone.querySelectorAll('.editor-step-pill');
+  pills.forEach(pill => {
+    const ingName = pill.getAttribute('data-ingredient') || pill.textContent;
+    const textNode = document.createTextNode(`[[${ingName}]]`);
+    pill.parentNode.replaceChild(textNode, pill);
+  });
+  
+  // Replace <br> and divs
+  const brs = clone.querySelectorAll('br');
+  brs.forEach(br => {
+    br.parentNode.replaceChild(document.createTextNode('\n'), br);
+  });
+  
+  const divs = clone.querySelectorAll('div');
+  divs.forEach(div => {
+    const textNode = document.createTextNode('\n' + div.textContent);
+    div.parentNode.replaceChild(textNode, div);
+  });
+  
+  return clone.textContent || clone.innerText || '';
+}
+
+function deserializeTextToHTML(text) {
+  if (!text) return '';
+  // 1. Escape HTML of the base text
+  let escaped = escapeHTML(text);
+  // 2. Replace [[Ingredient Name]] with editor pills
+  const regex = /\[\[(.*?)\]\]/g;
+  return escaped.replace(regex, (match, ingName) => {
+    return `<span class="editor-step-pill" contenteditable="false" data-ingredient="${ingName}">${ingName}</span>`;
+  });
+}
+
+function generateUUID() {
+  return 'recipe-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+function formatTimeStr(totalSec) {
+  const hr = Math.floor(totalSec / 3600);
+  const min = Math.floor((totalSec % 3600) / 60);
+  const sec = totalSec % 60;
+
+  const hrStr = hr > 0 ? String(hr) + ':' : '';
+  const minStr = String(min).padStart(2, '0');
+  const secStr = String(sec).padStart(2, '0');
+
+  // If no hours, display MM:SS. If has hours, display H:MM:SS
+  return `${hrStr}${minStr}:${secStr}`;
+}
+
+// --- Seed Data (Grandma's recipe styles to populate beautifully) ---
+function getSeedRecipes() {
+  return [
+    {
+      id: "seed-lasagna",
+      title: "Grandma's Famous Lasagna",
+      calories: 680,
+      protein: 38,
+      healthScore: 65,
+      tempType: "oven",
+      tempValue: "375°F",
+      labels: ["Dinner"],
+      image: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=500&q=80",
+      ingredients: [
+        "12 lasagna noodles",
+        "1 lb sweet Italian sausage",
+        "3/4 lb lean ground beef",
+        "1/2 cup minced onion",
+        "2 cloves garlic, crushed",
+        "28 oz crushed tomatoes",
+        "16 oz ricotta cheese",
+        "1 egg",
+        "3/4 lb mozzarella cheese, sliced",
+        "3/4 cup grated Parmesan cheese"
+      ],
+      directions: [
+        "In a Dutch oven, cook [[sweet Italian sausage]], [[lean ground beef]], [[minced onion]], and [[garlic, crushed]] over medium heat until well browned.",
+        "Stir in [[crushed tomatoes]]. Simmer, uncovered, for about 45 minutes, stirring occasionally.",
+        "Bring a large pot of lightly salted water to a boil. Cook [[lasagna noodles]] in boiling water for 8 to 10 minutes; drain.",
+        "In a mixing bowl, combine [[ricotta cheese]] with [[egg]] and pinch of salt.",
+        "Preheat your oven to [[375°F]] (190 degrees C).",
+        "To assemble, spread 1 1/2 cups of meat sauce in the bottom of a 9x13-inch baking dish. Arrange 6 noodles lengthwise over meat sauce. Spread one half of the riccota mixture over noodles. Top with a third of [[mozzarella cheese]] slices. Spoon 1 1/2 cups meat sauce over mozzarella, and sprinkle with 1/4 cup [[grated Parmesan cheese]].",
+        "Repeat layers, and top with remaining mozzarella and parmesan.",
+        "Bake in preheated oven for 25 minutes. Cool for 15 minutes before serving."
+      ],
+      cookCount: 14,
+      createdAt: 1716922800000
+    },
+    {
+      id: "seed-pancakes",
+      title: "Fluffy Buttermilk Pancakes",
+      calories: 350,
+      protein: 8,
+      healthScore: 72,
+      tempType: "none",
+      tempValue: "",
+      labels: ["Breakfast"],
+      image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=500&q=80",
+      ingredients: [
+        "2 cups all-purpose flour",
+        "2 tsp baking powder",
+        "1 tsp baking soda",
+        "2 tbsp sugar",
+        "2 eggs",
+        "2 cups buttermilk",
+        "1/2 cup unsalted butter, melted"
+      ],
+      directions: [
+        "In a large bowl, whisk together [[all-purpose flour]], [[baking powder]], [[baking soda]], and [[sugar]].",
+        "In a separate bowl, beat the [[eggs]] with the [[buttermilk]] and melted [[unsalted butter, melted]].",
+        "Pour the wet ingredients into the dry ingredients and whisk gently until just combined (lumps are okay).",
+        "Heat a skillet or griddle over [[Medium Heat]] and brush with a little extra butter.",
+        "Pour 1/4 cup of batter for each pancake. Cook until bubbles form on the surface, then flip and cook until golden brown on the other side."
+      ],
+      cookCount: 22,
+      createdAt: 1716922801000
+    },
+    {
+      id: "seed-salad",
+      title: "Lemon-Herb Chicken Quinoa Salad",
+      calories: 480,
+      protein: 42,
+      healthScore: 95,
+      tempType: "none",
+      tempValue: "",
+      labels: ["Lunch"],
+      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80",
+      ingredients: [
+        "2 chicken breasts",
+        "1 cup quinoa",
+        "2 cups chicken broth",
+        "1 cup cherry tomatoes, halved",
+        "1 cucumber, diced",
+        "3 tbsp olive oil",
+        "1 lemon, juiced",
+        "1 tsp dried oregano"
+      ],
+      directions: [
+        "Rinse the [[quinoa]]. In a pot, combine quinoa and [[chicken broth]]. Bring to a boil on [[Medium-High]] heat, then cover, turn heat to low, and cook for 15 minutes.",
+        "Season [[chicken breasts]] with salt, pepper, and [[dried oregano]]. Pan-fry in a skillet on medium heat for 6-8 minutes per side until cooked through.",
+        "Let chicken rest, then dice into bite-size pieces.",
+        "In a large serving bowl, whisk [[olive oil]], [[lemon, juiced]], salt and pepper.",
+        "Add the cooked quinoa, diced chicken, [[cherry tomatoes, halved]], and diced [[cucumber]]. Toss to combine and serve warm or chilled."
+      ],
+      cookCount: 8,
+      createdAt: 1716922802000
+    }
+  ];
+}
+
+// --- Apple-Style Scroll Duration Picker Engine ---
+function initDurationPickerWheels() {
+  const hrScroll = document.querySelector('#picker-wheel-hr .picker-wheel-scroll');
+  const minScroll = document.querySelector('#picker-wheel-min .picker-wheel-scroll');
+  const secScroll = document.querySelector('#picker-wheel-sec .picker-wheel-scroll');
+  
+  if (!hrScroll || !minScroll || !secScroll) return;
+
+  // Generate Hours
+  hrScroll.innerHTML = '';
+  for (let i = 0; i < 24; i++) {
+    const el = document.createElement('div');
+    el.className = 'picker-wheel-item';
+    el.setAttribute('data-value', i);
+    el.textContent = String(i).padStart(2, '0');
+    hrScroll.appendChild(el);
+  }
+  
+  // Generate Minutes
+  minScroll.innerHTML = '';
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'picker-wheel-item';
+    el.setAttribute('data-value', i);
+    el.textContent = String(i).padStart(2, '0');
+    minScroll.appendChild(el);
+  }
+  
+  // Generate Seconds
+  secScroll.innerHTML = '';
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'picker-wheel-item';
+    el.setAttribute('data-value', i);
+    el.textContent = String(i).padStart(2, '0');
+    secScroll.appendChild(el);
+  }
+
+  // Setup scroll event listeners to update active classes and values
+  const wheels = document.querySelectorAll('.picker-wheel');
+  wheels.forEach(wheel => {
+    wheel.addEventListener('scroll', () => {
+      updateWheelActiveState(wheel);
+    });
+    
+    // Allow clicking an item to scroll to it
+    wheel.addEventListener('click', (e) => {
+      const item = e.target.closest('.picker-wheel-item');
+      if (item) {
+        const val = parseInt(item.getAttribute('data-value'));
+        wheel.scrollTo({ top: val * 36, behavior: 'smooth' }); // Item height is 36px in CSS
+      }
+    });
+  });
+
+  // Set default values (e.g. 5 minutes)
+  setDurationPickerValues(0, 5, 0);
+}
+
+function updateWheelActiveState(wheel) {
+  const scrollTop = wheel.scrollTop;
+  const index = Math.round(scrollTop / 36); // item height is 36px in CSS
+  const items = wheel.querySelectorAll('.picker-wheel-item');
+  
+  items.forEach((item, i) => {
+    if (i === index) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+}
+
+function setDurationPickerValues(hr, min, sec) {
+  const hrWheel = document.getElementById('picker-wheel-hr');
+  const minWheel = document.getElementById('picker-wheel-min');
+  const secWheel = document.getElementById('picker-wheel-sec');
+  
+  if (hrWheel) hrWheel.scrollTop = hr * 36;
+  if (minWheel) minWheel.scrollTop = min * 36;
+  if (secWheel) secWheel.scrollTop = sec * 36;
+  
+  // Trigger update after scroll sets
+  setTimeout(() => {
+    if (hrWheel) updateWheelActiveState(hrWheel);
+    if (minWheel) updateWheelActiveState(minWheel);
+    if (secWheel) updateWheelActiveState(secWheel);
+  }, 50);
+}
+
+function getDurationPickerValues() {
+  const hrWheel = document.getElementById('picker-wheel-hr');
+  const minWheel = document.getElementById('picker-wheel-min');
+  const secWheel = document.getElementById('picker-wheel-sec');
+  
+  const hr = hrWheel ? Math.round(hrWheel.scrollTop / 36) : 0;
+  const min = minWheel ? Math.round(minWheel.scrollTop / 36) : 5;
+  const sec = secWheel ? Math.round(secWheel.scrollTop / 36) : 0;
+  
+  return {
+    hr: Math.min(23, Math.max(0, hr)),
+    min: Math.min(59, Math.max(0, min)),
+    sec: Math.min(59, Math.max(0, sec))
+  };
+}
+
+// --- Customizable Presets Engine ---
+let timerPresets = [60, 180, 300, 600, 900, 1800]; // in seconds (1m, 3m, 5m, 10m, 15m, 30m)
+
+function loadPresets() {
+  const stored = localStorage.getItem('myrecipe_timer_presets');
+  if (stored) {
+    try {
+      timerPresets = JSON.parse(stored);
+    } catch (e) {
+      console.error('Error parsing presets:', e);
+    }
+  }
+}
+
+function savePresets(newPresets) {
+  timerPresets = newPresets;
+  localStorage.setItem('myrecipe_timer_presets', JSON.stringify(newPresets));
+  renderPresets();
+}
+
+function renderPresets() {
+  const container = document.getElementById('timer-presets-list');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  // Render standard presets
+  timerPresets.forEach(totalSec => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'preset-btn';
+    btn.setAttribute('data-sec', totalSec);
+    btn.textContent = formatDurationLabel(totalSec);
+    
+    btn.addEventListener('click', () => {
+      initAudio();
+      const hr = Math.floor(totalSec / 3600);
+      const min = Math.floor((totalSec % 3600) / 60);
+      const sec = totalSec % 60;
+      setDurationPickerValues(hr, min, sec);
+      selectedTimerDuration = totalSec; // Save duration before transitioning
+      showTimerStep2(); // Move to Step 2 automatically upon preset click
+    });
+    container.appendChild(btn);
+  });
+}
+
+function openPresetsEditor() {
+  const grid = document.getElementById('presets-edit-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  
+  timerPresets.forEach((totalSec, idx) => {
+    const mins = Math.floor(totalSec / 60);
+    
+    const wrapper = document.createElement('div');
+    wrapper.className = 'preset-edit-input-wrapper';
+    wrapper.innerHTML = `
+      <label>P${idx + 1}</label>
+      <input type="number" min="1" max="1440" value="${mins}" data-index="${idx}">
+      <span>min</span>
+    `;
+    grid.appendChild(wrapper);
+  });
+  
+  document.getElementById('presets-display-wrapper').classList.add('hidden');
+  document.getElementById('presets-edit-wrapper').classList.remove('hidden');
+  document.getElementById('edit-presets-btn').classList.add('hidden');
+}
+
+function closePresetsEditor() {
+  document.getElementById('presets-display-wrapper').classList.remove('hidden');
+  document.getElementById('presets-edit-wrapper').classList.add('hidden');
+  document.getElementById('edit-presets-btn').classList.remove('hidden');
+}
+
+function savePresetsFromEditor() {
+  const inputs = document.querySelectorAll('#presets-edit-grid input');
+  const newPresets = [];
+  inputs.forEach(input => {
+    const mins = Math.max(1, parseInt(input.value) || 1);
+    newPresets.push(mins * 60);
+  });
+  savePresets(newPresets);
+  closePresetsEditor();
+}
+
+function formatDurationLabel(totalSec) {
+  const hr = Math.floor(totalSec / 3600);
+  const min = Math.floor((totalSec % 3600) / 60);
+  const sec = totalSec % 60;
+  
+  if (hr > 0) {
+    return `${hr}h ${min > 0 ? min + 'm' : ''}`;
+  }
+  if (min > 0) {
+    return `${min}m${sec > 0 ? sec + 's' : ''}`;
+  }
+  return `${sec}s`;
+}
+
+// --- Recipe-Derived Step Direction Timers Parser ---
+function updateRecipeTimers(recipe) {
+  // Smart timers are now rendered inline under instruction steps.
+  // The sidebar presets list only renders standard user presets.
+  renderPresets();
+}
+
+// --- Image Cropper Engine (Vanilla HTML5 Canvas) ---
+let cropperImageSrc = '';
+let imgNaturalWidth = 0;
+let imgNaturalHeight = 0;
+let zoomFactor = 1;
+let baseScale = 1;
+let imgX = 0;
+let imgY = 0;
+let isDragging = false;
+let startDragX = 0;
+let startDragY = 0;
+let startImgX = 0;
+let startImgY = 0;
+
+function openCropperModal(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    cropperImageSrc = e.target.result;
+    
+    // Load to image element to get natural dimensions
+    const img = new Image();
+    img.onload = function() {
+      imgNaturalWidth = img.width;
+      imgNaturalHeight = img.height;
+      
+      // Calculate scale to fit "cover" inside 300x200 viewport
+      baseScale = Math.max(300 / imgNaturalWidth, 200 / imgNaturalHeight);
+      zoomFactor = 1;
+      
+      // Center the image in the viewport initially
+      imgX = (300 - imgNaturalWidth * baseScale) / 2;
+      imgY = (200 - imgNaturalHeight * baseScale) / 2;
+      
+      // Reset zoom slider
+      const zoomSlider = document.getElementById('cropper-zoom');
+      if (zoomSlider) {
+        zoomSlider.value = 1;
+      }
+      
+      // Set cropper image src
+      const cropperImgEl = document.getElementById('cropper-image');
+      if (cropperImgEl) {
+        cropperImgEl.src = cropperImageSrc;
+      }
+      
+      updateCropperPosition();
+      
+      // Show modal
+      document.getElementById('crop-image-modal').classList.remove('hidden');
+    };
+    img.src = cropperImageSrc;
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateCropperPosition() {
+  const cropperImgEl = document.getElementById('cropper-image');
+  if (!cropperImgEl) return;
+  
+  const scale = baseScale * zoomFactor;
+  const w = imgNaturalWidth * scale;
+  const h = imgNaturalHeight * scale;
+  
+  // Constraints calculation - image must cover the 300x200 viewport
+  // imgX bounds: 300 - w <= imgX <= 0
+  imgX = Math.max(300 - w, Math.min(0, imgX));
+  // imgY bounds: 200 - h <= imgY <= 0
+  imgY = Math.max(200 - h, Math.min(0, imgY));
+  
+  cropperImgEl.style.width = w + 'px';
+  cropperImgEl.style.height = h + 'px';
+  cropperImgEl.style.left = imgX + 'px';
+  cropperImgEl.style.top = imgY + 'px';
+}
+
+function setupCropperEvents() {
+  const viewport = document.getElementById('cropper-viewport');
+  const zoomSlider = document.getElementById('cropper-zoom');
+  const cancelBtn = document.getElementById('cropper-cancel');
+  const saveBtn = document.getElementById('cropper-save');
+  
+  if (!viewport || !zoomSlider || !cancelBtn || !saveBtn) return;
+  
+  // Zoom Slider logic - zoom relative to the center of the 300x200 viewport
+  zoomSlider.addEventListener('input', (e) => {
+    const oldScale = baseScale * zoomFactor;
+    zoomFactor = parseFloat(e.target.value) || 1;
+    const newScale = baseScale * zoomFactor;
+    
+    // Zoom relative to viewport center (150, 100)
+    const viewCenterX = 150;
+    const viewCenterY = 100;
+    
+    // Calculate point in natural image coordinates currently at viewport center
+    const imgCenterX = (viewCenterX - imgX) / oldScale;
+    const imgCenterY = (viewCenterY - imgY) / oldScale;
+    
+    // Calculate new top-left offsets so the same image coordinates stay centered
+    imgX = viewCenterX - imgCenterX * newScale;
+    imgY = viewCenterY - imgCenterY * newScale;
+    
+    updateCropperPosition();
+  });
+  
+  // Helper to retrieve coords from touch or mouse
+  function getCoords(e) {
+    if (e.touches && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+  }
+  
+  // Start dragging
+  function startDrag(e) {
+    // Prevent default scrolling on mobile touch
+    if (e.type === 'touchstart') {
+      e.preventDefault();
+    }
+    isDragging = true;
+    const coords = getCoords(e);
+    startDragX = coords.x;
+    startDragY = coords.y;
+    startImgX = imgX;
+    startImgY = imgY;
+  }
+  
+  // Dragging
+  function drag(e) {
+    if (!isDragging) return;
+    if (e.type === 'touchmove') {
+      e.preventDefault();
+    }
+    const coords = getCoords(e);
+    const dx = coords.x - startDragX;
+    const dy = coords.y - startDragY;
+    imgX = startImgX + dx;
+    imgY = startImgY + dy;
+    updateCropperPosition();
+  }
+  
+  // End dragging
+  function endDrag() {
+    isDragging = false;
+  }
+  
+  // Mouse Drag listeners
+  viewport.addEventListener('mousedown', startDrag);
+  window.addEventListener('mousemove', drag);
+  window.addEventListener('mouseup', endDrag);
+  
+  // Touch Drag listeners for iPad
+  viewport.addEventListener('touchstart', startDrag, { passive: false });
+  window.addEventListener('touchmove', drag, { passive: false });
+  window.addEventListener('touchend', endDrag);
+  window.addEventListener('touchcancel', endDrag);
+  
+  // Cancel button
+  cancelBtn.addEventListener('click', () => {
+    document.getElementById('crop-image-modal').classList.add('hidden');
+    // Clear file input so uploading same file again triggers change event
+    const fileInput = document.getElementById('recipe-image-file');
+    if (fileInput) fileInput.value = '';
+  });
+  
+  // Save button
+  saveBtn.addEventListener('click', cropAndSave);
+}
+
+function cropAndSave() {
+  const scale = baseScale * zoomFactor;
+  
+  // Viewport is 300x200. We want to crop to a 3:2 visual representation of 500x333.
+  const canvas = document.createElement('canvas');
+  canvas.width = 500;
+  canvas.height = 333;
+  const ctx = canvas.getContext('2d');
+  
+  // Source coordinates in the natural image space
+  const sx = -imgX / scale;
+  const sy = -imgY / scale;
+  const sw = 300 / scale;
+  const sh = 200 / scale;
+  
+  const imgEl = new Image();
+  imgEl.onload = function() {
+    ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, 500, 333);
+    const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    
+    // Set preview thumbnail
+    const previewDiv = document.getElementById('image-preview');
+    if (previewDiv) {
+      previewDiv.innerHTML = `<img src="${croppedDataUrl}" class="image-preview-img">`;
+      previewDiv.setAttribute('data-base64', croppedDataUrl);
+    }
+    
+    // Hide modal
+    document.getElementById('crop-image-modal').classList.add('hidden');
+    
+    // Clear file input so uploading same file again triggers change
+    const fileInput = document.getElementById('recipe-image-file');
+    if (fileInput) fileInput.value = '';
+  };
+  imgEl.src = cropperImageSrc;
+}
+  </script>
 </body>
 </html>
